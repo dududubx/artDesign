@@ -1,2 +1,2 @@
 *.html linguist-detectable=false
-*.vue linguist-detectable=true
+*.vue linguist-detectable=false
