@@ -207,7 +207,7 @@
       "title": "内嵌页面"
     },
     "dashboard": {
-      "title": "仪表盘",
+      "title": "数据管理",
       "console": "工作台",
       "analysis": "分析页",
       "ecommerce": "电子商务"
@@ -298,6 +298,9 @@
       "title": "帮助中心",
       "document": "官方文档",
       "liteVersion": "精简版本"
+    },
+    "order": {
+      "title": "订单管理"
     }
   },
   "table": {
