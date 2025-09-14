@@ -6,6 +6,7 @@
     @click="handleClick"
   >
     <i v-if="iconContent" class="iconfont-sys" v-html="iconContent"></i>
+    <span class="btn-text-content">{{ text }}</span>
   </div>
 </template>
 
@@ -25,6 +26,7 @@
     iconColor?: string
     /** 按钮背景色 */
     buttonBgColor?: string
+    text?: string
   }
 
   const props = withDefaults(defineProps<Props>(), {})
@@ -74,6 +76,9 @@
 
     &:hover {
       background-color: rgba(var(--art-gray-300-rgb), 0.5);
+    }
+    &-content {
+      margin-left: 5px;
     }
   }
 </style>

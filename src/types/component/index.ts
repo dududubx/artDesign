@@ -122,3 +122,11 @@ export interface DialogConfig {
   // 自定义类名
   customClass?: string
 }
+
+// 选项卡配置
+export interface TabsConfig {
+  name: string
+  label: string
+  useSlot?: boolean
+  slotName?: string
+}

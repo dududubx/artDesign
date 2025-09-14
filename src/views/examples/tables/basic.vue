@@ -14,10 +14,17 @@
       @search="handleSearch"
       @reset="handleReset"
     />
+
     <ElCard class="art-table-card" shadow="never" style="margin-top: 0">
+      <ArtTabs :panes="tabs" v-model:active-name="activeName" />
       <!-- 表格工具栏 -->
       <!-- fullClass 属性用于设置全屏区域，如果需要设置全屏区域，请使用此属性 -->
-      <ArtTableHeader layout="" fullClass="art-table-card">
+      <ArtTableHeader
+        layout="refresh,columns"
+        fullClass="art-table-card"
+        v-model:columns="columnChecks"
+        @refresh="handleReset"
+      >
         <template #left>
           <ElButton @click="handleBatchDelete" :disabled="selectedRows.length === 0" v-ripple>
             批量发货 ({{ selectedRows.length }})
@@ -27,30 +34,57 @@
       <!-- 表格 -->
       <ArtTable
         rowKey="id"
-        :show-table-header="false"
+        :show-table-header="true"
         :loading="loading"
+        :default-expand-all="true"
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :span-method="objectSpanMethod"
+        :row-class-name="rowClassName"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       >
         <template #name="{ row }">
           <div class="order-info">
-            <div class="order-info_top">
+            <div class="order-info_top" v-if="!row.isChild">
               <div class="order-info_top--id"> 订单号: {{ row.orderId }} </div>
               <div class="order-info_top--time"> 创建时间: {{ row.createTime }} </div>
             </div>
-            <div class="order-info_bottom">
+            <div class="order-info_bottom" v-else>
               <div class="order-info_bottom--img">
                 <img :src="row.imgUrl" alt="" />
               </div>
               <div class="order-info_bottom--info">
                 <div class="order-info_bottom--info--name"> {{ row.name }} </div>
-                <div class="order-info_bottom--info--other"> 发货时间: {{ row.other }} </div>
+                <div class="order-info_bottom--info--other"> {{ row.other }} </div>
               </div>
             </div>
+          </div>
+        </template>
+        <template #price="{ row }">
+          <span class="price">¥{{ row.price }}</span>
+        </template>
+        <template #totalPrice="{ row }">
+          <div class="total-price">
+            <span class="price">¥{{ row.totalPrice }}</span>
+            <div class="other-price">
+              <span>(含快递:¥{{ row.kuaidi }})</span>
+              <span>(含押金:¥{{ row.yajin }})</span>
+            </div>
+          </div>
+        </template>
+        <template #orderType="{ row }">
+          <ElTag effect="light">
+            {{ row.orderType }}
+          </ElTag>
+        </template>
+        <!-- 操作列 -->
+        <template #operation="{ row }">
+          <div class="operation-buttons">
+            <ArtButtonTable type="edit" :row="row" text="编辑" />
+            <ArtButtonTable type="delete" :row="row" text="删除" />
           </div>
         </template>
       </ArtTable>
@@ -61,9 +95,51 @@
 <script setup lang="ts">
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
+  import type { TabsConfig } from '@/types/component'
+  import ArtTabs from '@/components/core/tabs/index.vue'
 
   defineOptions({ name: 'UserMixedUsageExample' })
-   // 表单搜索初始值
+  //tabs
+  const tabs = ref<TabsConfig[]>([
+    {
+      name: 'allOrder',
+      label: '全部订单'
+    },
+    {
+      name: 'waitPayOrder',
+      label: '待付款'
+    },
+    {
+      name: 'waitSendOrder',
+      label: '待发货'
+    },
+    {
+      name: 'waitReceiveOrder',
+      label: '待收货'
+    },
+    {
+      name: 'receiveOrder',
+      label: '已发货'
+    },
+    {
+      name: 'sentOrder',
+      label: '租赁中'
+    },
+    {
+      name: 'notReturnOrder',
+      label: '待归还'
+    },
+    {
+      name: 'returnOrder',
+      label: '归还中'
+    },
+    {
+      name: 'succeedOrder',
+      label: '已完成'
+    }
+  ])
+  const activeName = ref('allOrder')
+  // 表单搜索初始值
   const searchFormState = ref({
     name: '',
     orderNo: '',
@@ -83,7 +159,7 @@
       label: '订单号',
       type: 'input',
       props: {
-        placeholder: '请输入订单号',
+        placeholder: '请输入订单号'
       }
     },
     {
@@ -99,20 +175,59 @@
     }
   ])
   const selectedRows = ref<any[]>([])
-  const data = ref([{
-      name: '小红楼电玩运费差价邮费差价补拍',
-      orderId: '2927503562673969294',
-      createTime: '2025-09-12 10:34:12',
-      price: '1',
+  const data = ref([
+    {
+      id: '23333',
+      name: '',
+      orderId: '4401438264980299820',
+      createTime: '2025-06-23 00:37:48',
+      price: '',
       number: '15',
       status: '待发货',
       totalPrice: 15,
-      imgUrl:
-        'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
-      other: '09月13日 06:47前发货'
+      imgUrl: '',
+      other: '',
+      orderType: '',
+      children: [
+        {
+          id: '233331',
+          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
+          orderId: '',
+          createTime: '',
+          price: '1',
+          number: '15',
+          status: '待发货',
+          totalPrice: 15,
+          imgUrl:
+            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
+          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+          orderType: '租赁订单',
+          isChild: true,
+          kuaidi: '0.00',
+          yajin: '300.00'
+        },
+        {
+          id: '233332',
+          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
+          orderId: '4401438264980299820',
+          createTime: '2025-06-23 00:37:48',
+          price: '1',
+          number: '15',
+          status: '待发货',
+          totalPrice: 15,
+          imgUrl:
+            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
+          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+          orderType: '租赁订单',
+          isChild: true,
+          kuaidi: '0.00',
+          yajin: '300.00'
+        }
+      ]
     },
     {
-      name: '小红楼电玩运费差价邮费差价补拍',
+      id: '58888',
+      name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '2927503562673969294',
       createTime: '2025-09-12 10:34:12',
       price: '1',
@@ -121,10 +236,95 @@
       totalPrice: 15,
       imgUrl:
         'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
-      other: '09月13日 06:47前发货'
+      other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+      orderType: '租赁订单',
+      children: [
+        {
+          id: '588881',
+          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
+          orderId: '2927503562673969294',
+          createTime: '2025-09-12 10:34:12',
+          price: '1',
+          number: '15',
+          status: '待发货',
+          totalPrice: 15,
+          imgUrl:
+            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
+          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+          orderType: '租赁订单',
+          isChild: true,
+          kuaidi: '0.00',
+          yajin: '300.00'
+        }
+      ]
     }
   ])
-  const { columns, loading, pagination, handleSizeChange, handleCurrentChange } = useTable({
+
+  for (let i = 0; i < 18; i++) {
+    data.value.push({
+      id: '10000' + i,
+      name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
+      orderId: '2927503562673969294' + i,
+      createTime: '2025-09-12 10:34:12',
+      price: '1',
+      number: '15',
+      status: '待发货',
+      totalPrice: 15,
+      imgUrl:
+        'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
+      other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+      orderType: '租赁订单',
+      children: [
+        {
+          id: '100001' + i,
+          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
+          orderId: '2927503562673969294' + i,
+          createTime: '2025-09-12 10:34:12',
+          price: '1',
+          number: '15',
+          status: '待发货',
+          totalPrice: 15,
+          imgUrl:
+            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
+          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+          orderType: '租赁订单',
+          isChild: true,
+          kuaidi: '0.00',
+          yajin: '300.00'
+        }
+      ]
+    })
+  }
+  const allData = ref<any[]>([...data.value])
+  const pagination = ref({
+    current: 1,
+    size: 10,
+    total: data.value.length
+  })
+  const handleSizeChange = (size: number) => {
+    pagination.value.size = size
+    data.value = allData.value.slice(
+      (pagination.value.current - 1) * size,
+      pagination.value.current * size
+    )
+  }
+  const handleCurrentChange = (current: number) => {
+    pagination.value.current = current
+    console.log(
+      'current change:',
+      current,
+      allData.value,
+      allData.value.slice(
+        (pagination.value.current - 1) * pagination.value.size,
+        pagination.value.current * pagination.value.size
+      )
+    )
+    data.value = allData.value.slice(
+      (pagination.value.current - 1) * pagination.value.size,
+      pagination.value.current * pagination.value.size
+    )
+  }
+  const { columns, columnChecks, loading } = useTable({
     core: {
       apiFn: fetchGetUserList,
       apiParams: {
@@ -135,45 +335,86 @@
         userEmail: ''
       },
       columnsFactory: () => [
-        { type: 'selection', width: 50 },
+        { type: 'selection', width: 38 },
         {
           prop: 'name',
           label: '宝贝',
-          width: 400,
-          useSlot: true
+          width: 530,
+          useSlot: true,
+          disabled: true
+          // fixed: 'left'
         },
         {
           prop: 'price',
-          label: '单价'
+          label: '单价',
+          useSlot: true,
+          align: 'center'
         },
         {
           prop: 'number',
-          label: '数量'
+          label: '数量',
+          align: 'center'
+        },
+        {
+          prop: 'orderType',
+          label: '订单类型',
+          width: 100,
+          useSlot: true,
+          align: 'center'
         },
         {
           prop: 'status',
-          label: '交易状态'
+          label: '交易状态',
+          width: 100,
+          align: 'center'
         },
         {
           prop: 'totalPrice',
-          label: '实收款'
+          label: '实收款',
+          align: 'center',
+          width: 120,
+          useSlot: true
+        },
+        {
+          prop: 'operation',
+          label: '操作',
+          width: 180,
+          useSlot: true
+          // fixed: 'right'
         }
       ]
     }
   })
   // 事件处理函数
   const handleSelectionChange = (selection: any[]) => {
-    selectedRows.value = selection
+    selectedRows.value = selection.filter((item: any) => item.isChild)
     console.log('选择变更:', selection)
   }
-  const handleSearch = () => {
-
+  const handleSearch = () => {}
+  const handleReset = () => {}
+  const handleBatchDelete = () => {}
+  const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
+    if (!row.isChild) {
+      if (columnIndex === 1) {
+        return [1, 7]
+      } else if (columnIndex == 0) {
+        return [1, 1]
+      }
+      return [0, 0]
+    } else {
+      if (columnIndex === 1) {
+        return [1, 2]
+      } else if (columnIndex == 0) {
+        return [0, 0]
+      }
+      return [1, 1]
+    }
   }
-  const handleReset = () => {
-
-  }
-  const handleBatchDelete = () => {
-    
+  const rowClassName = ({ row }: any) => {
+    if (!row.isChild) {
+      return 'parent-row'
+    }
+    return 'child-row'
   }
 </script>
 
@@ -181,44 +422,91 @@
   .user-page {
     gap: 16px;
   }
-
+  :deep(.el-table th.el-table__cell.is-leaf, .el-table td.el-table__cell) {
+    border-bottom: 0;
+  }
+  :deep(.el-checkbox--default .el-checkbox__inner) {
+    width: 21px !important;
+    height: 21px !important;
+    &::before {
+      top: 7px !important;
+    }
+  }
+  :deep(.el-table) {
+    color: #111;
+    thead {
+      color: #404040;
+    }
+    [class*='el-table__row--level'] .el-table__expand-icon {
+      display: none;
+    }
+    .parent-row {
+      .el-table-column--selection > .cell {
+        width: 60px;
+      }
+      .el-table__cell {
+        // padding: 0;
+        .cell {
+          background-color: var(--el-table-row-hover-bg-color);
+          border-radius: 9px;
+          height: 45px;
+        }
+        .order-info_top {
+          display: flex;
+          align-items: center;
+          gap: 30px;
+          font-size: 12px;
+          // position: absolute;
+          // top: 10px;
+          // left: 42px;
+          width: 100%;
+          padding: 11px 0;
+          box-sizing: border-box;
+          border-radius: 0 9px 9px 0;
+        }
+      }
+    }
+    .child-row {
+      .el-table__placeholder {
+        display: none;
+      }
+      .el-table__indent {
+        display: none;
+      }
+    }
+    .total-price {
+      .other-price {
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+        color: #999;
+      }
+    }
+  }
+  :deep(
+    .el-table__body tr.hover-row > td.el-table__cell,
+    .el-table__body tr.hover-row.current-row > td.el-table__cell,
+    .el-table__body tr.hover-row.el-table__row--striped > td.el-table__cell,
+    .el-table__body tr.hover-row.el-table__row--striped.current-row > td.el-table__cell
+  ) {
+    background-color: transparent;
+  }
+  :deep(.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell) {
+    background-color: transparent;
+  }
   :deep(.el-table__row) {
     position: relative;
     .el-table__cell {
-      padding-top: 60px;
-      position: static !important;
-    }
-    .el-checkbox {
-      position: absolute;
-      left: 0px;
-      top: 10px;
-      background-color: var(--el-table-row-hover-bg-color);
-      padding: 8px;
-      border-radius: 9px 0px 0px 9px;
-      width: 50px;
-      height: 39px;
-      box-sizing: border-box;
-      padding-left: 12px;
+      // padding-top: 80px;
+      // position: static !important;
+      border-bottom: 0;
     }
   }
   :deep(.order-info) {
-    .order-info_top {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-      position: absolute;
-      top: 10px;
-      left: 42px;
-      width: calc(100% - 42px);
-      background-color: var(--el-table-row-hover-bg-color);
-      padding: 8px;
-      padding-left: 20px;
-      box-sizing: border-box;
-      border-radius: 0 9px 9px 0;
-    }
     .order-info_bottom {
       display: flex;
       gap: 10px;
+      padding: 10px 0;
       img {
         width: 80px;
         height: 80px;
@@ -226,7 +514,12 @@
         border-radius: 9px;
       }
       .order-info_bottom--info--name {
-        color: #5d87ff;
+        color: #3d7fff;
+        font-size: 12px;
+      }
+      .order-info_bottom--info--other {
+        color: #999;
+        font-size: 12px;
       }
     }
   }

@@ -62,9 +62,9 @@
               v-for="item in columns"
               :key="item.prop || item.type"
               class="column-option"
-              :class="{ 'fixed-column': item.fixed }"
+              :class="{ 'fixed-column': item.fixed || item.disabled }"
             >
-              <div class="drag-icon" :class="{ disabled: item.fixed }">
+              <div class="drag-icon" :class="{ disabled: item.fixed || item.disabled }">
                 <i class="iconfont-sys">{{ item.fixed ? '&#xe648;' : '&#xe648;' }}</i>
               </div>
               <ElCheckbox v-model="item.checked" :disabled="item.disabled">{{

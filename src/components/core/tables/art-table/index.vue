@@ -93,6 +93,7 @@
 
   // 动态计算表格头部高度
   const tableHeaderHeight = ref(0)
+  const tableTabsHeight = ref(0)
 
   // ResizeObserver 用于监听表格头部高度变化
   let resizeObserver: ResizeObserver | null = null
@@ -141,6 +142,7 @@
     emptyText?: string
     /** 是否开启 ArtTableHeader，解决表格高度自适应问题 */
     showTableHeader?: boolean
+    showTableTabs?: boolean
   }
 
   const props = withDefaults(defineProps<ArtTableProps>(), {
@@ -152,7 +154,8 @@
     size: undefined,
     emptyHeight: '100%',
     emptyText: '暂无数据',
-    showTableHeader: true
+    showTableHeader: true,
+    showTableTabs: false
   })
 
   const LAYOUT = {
@@ -207,7 +210,8 @@
       offset = paginationHeight.value === 0 ? 0 : paginationHeight.value + PAGINATION_SPACING.value
     } else {
       // 有表格头部时，动态计算表格头部高度 + 分页器高度 + 间距
-      const headerHeight = tableHeaderHeight.value || DEFAULT_TABLE_HEADER_HEIGHT
+      const headerHeight =
+        (tableTabsHeight.value || 0) + tableHeaderHeight.value || DEFAULT_TABLE_HEADER_HEIGHT
       const paginationOffset =
         paginationHeight.value === 0 ? 0 : paginationHeight.value + PAGINATION_SPACING.value
       offset = headerHeight + paginationOffset + TABLE_HEADER_SPACING
@@ -301,7 +305,17 @@
         tableHeaderHeight.value = 0
         return
       }
-
+      if (!props.showTableTabs) {
+        tableTabsHeight.value = 0
+      }
+      //查找表格tabs元素
+      const tableTabs = document.getElementById('art-table-tabs') as HTMLElement
+      if (!tableTabs) {
+        // 如果找不到表格tabs，使用默认高度
+        tableTabsHeight.value = 0
+      } else {
+        tableTabsHeight.value = tableTabs.offsetHeight
+      }
       // 查找表格头部元素
       const tableHeader = document.getElementById('art-table-header') as HTMLElement
       if (!tableHeader) {
@@ -339,7 +353,7 @@
 
   // 监听数据变化和表格头部显示状态变化，重新观察表格头部
   watch(
-    [() => props.data, () => props.showTableHeader],
+    [() => props.data, () => props.showTableHeader, () => props.showTableTabs],
     () => {
       nextTick(() => {
         observeTableHeader()

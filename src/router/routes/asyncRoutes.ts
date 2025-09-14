@@ -457,7 +457,7 @@ export const asyncRoutes: AppRouteRecord[] = [
   {
     name: 'warehouse',
     path: '/warehouse',
-    component: RoutesAlias.NestedMenu1,
+    component: RoutesAlias.NestedMenu21,
     meta: {
       title: '仓库管理',
       icon: '&#xe721;',
