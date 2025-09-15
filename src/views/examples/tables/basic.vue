@@ -478,7 +478,7 @@
       } else if (columnIndex == 0) {
         return [0, 0]
       }
-      if (columnIndex == 5 || columnIndex == 6) {
+      if (columnIndex == 6) {
         if (row.colSpan) {
           return [row.colSpan, 1]
         } else {
