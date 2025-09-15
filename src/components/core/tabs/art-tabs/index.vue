@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineModel } from 'vue'
   import type { TabsPaneContext } from 'element-plus'
   import type { TabsConfig } from '@/types/component'
   defineOptions({ name: 'ArtTabs' })

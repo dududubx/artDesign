@@ -2,19 +2,6 @@
 <template>
   <div class="user-page art-full-height">
     <!-- 搜索区域 -->
-    <ArtSearchBar
-      ref="searchBarRef"
-      v-model="searchFormState"
-      :items="searchItems"
-      :is-expand="false"
-      :show-expand="true"
-      :show-reset-button="true"
-      :show-search-button="true"
-      :disabled-search-button="false"
-      @search="handleSearch"
-      @reset="handleReset"
-    />
-
     <ElCard class="art-table-card" shadow="never" style="margin-top: 0">
       <ArtTabs :panes="tabs" v-model:active-name="activeName" />
       <!-- 表格工具栏 -->
@@ -26,9 +13,32 @@
         @refresh="handleReset"
       >
         <template #left>
-          <ElButton @click="handleBatchDelete" :disabled="selectedRows.length === 0" v-ripple>
+          <!-- <ElButton @click="handleBatchDelete" :disabled="selectedRows.length === 0" v-ripple>
             批量发货 ({{ selectedRows.length }})
-          </ElButton>
+          </ElButton> -->
+          <ArtSearchBar
+            ref="searchBarRef"
+            v-model="searchFormState"
+            :items="searchItems"
+            :is-expand="false"
+            :show-expand="true"
+            :show-reset-button="true"
+            :show-search-button="true"
+            :disabled-search-button="false"
+            @search="handleSearch"
+            @reset="handleReset"
+          />
+        </template>
+        <template #bottom>
+          <div class="art-table-header-bottom">
+            <div class="total-data">
+              共查询到<span class="total-data_num">{{ allData.length }}</span
+              >个订单
+            </div>
+            <div class="add-button">
+              <ElButton @click="handleBatchDelete" v-ripple> 新增订单 </ElButton>
+            </div>
+          </div>
         </template>
       </ArtTableHeader>
       <!-- 表格 -->
@@ -57,7 +67,7 @@
                 <img :src="row.imgUrl" alt="" />
               </div>
               <div class="order-info_bottom--info">
-                <div class="order-info_bottom--info--name"> {{ row.name }} </div>
+                <div class="order-info_bottom--info--name click_text"> {{ row.name }} </div>
                 <div class="order-info_bottom--info--other"> {{ row.other }} </div>
               </div>
             </div>
@@ -72,6 +82,7 @@
             <div class="other-price">
               <span>(含快递:¥{{ row.kuaidi }})</span>
               <span>(含押金:¥{{ row.yajin }})</span>
+              <span class="click_text">查看物流</span>
             </div>
           </div>
         </template>
@@ -96,7 +107,6 @@
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
   import type { TabsConfig } from '@/types/component'
-  import ArtTabs from '@/components/core/tabs/index.vue'
 
   defineOptions({ name: 'UserMixedUsageExample' })
   //tabs
@@ -143,12 +153,32 @@
   const searchFormState = ref({
     name: '',
     orderNo: '',
-    daterange: ['2025-01-01', '2025-02-10']
+    daterange: ['2025-01-01', '2025-02-10'],
+    orderType: '',
+    phone: '',
+    customerName: '',
+    payType: ''
   })
   const searchItems = computed(() => [
     {
+      key: 'orderType',
+      label: '订单类型',
+      type: 'select',
+      labelWidth: 90,
+      props: {
+        placeholder: '请选择订单类型',
+        options: [
+          {
+            label: '租赁订单',
+            value: 'rent'
+          }
+        ]
+      }
+    },
+    {
       key: 'name',
       label: '商品名称',
+      labelWidth: 90,
       type: 'input',
       props: {
         placeholder: '请输入商品名称'
@@ -157,6 +187,7 @@
     {
       key: 'orderNo',
       label: '订单号',
+      labelWidth: 90,
       type: 'input',
       props: {
         placeholder: '请输入订单号'
@@ -164,7 +195,8 @@
     },
     {
       key: 'daterange',
-      label: '日期范围',
+      label: '创建时间',
+      labelWidth: 90,
       type: 'daterange',
       props: {
         type: 'daterange',
@@ -172,7 +204,42 @@
         endPlaceholder: '结束日期',
         valueFormat: 'YYYY-MM-DD'
       }
-    }
+    },
+    {
+      key: 'customerName',
+      label: '收货人姓名',
+      labelWidth: 90,
+      type: 'input',
+      props: {
+        placeholder: '请输入收货人姓名',
+        maxlength: '11'
+      }
+    },
+    {
+      key: 'phone',
+      label: '收货人电话',
+      labelWidth: 90,
+      type: 'input',
+      props: {
+        placeholder: '请输入收货人电话',
+        maxlength: '11'
+      }
+    },
+    {
+      key: 'payType',
+      label: '交易状态',
+      labelWidth: 90,
+      type: 'select',
+      props: {
+        placeholder: '请选择交易状态',
+        options: [
+          {
+            label: '待发货',
+            value: '1'
+          }
+        ]
+      }
+    },
   ])
   const selectedRows = ref<any[]>([])
   const data = ref([
@@ -204,7 +271,8 @@
           orderType: '租赁订单',
           isChild: true,
           kuaidi: '0.00',
-          yajin: '300.00'
+          yajin: '300.00',
+          colSpan: 2
         },
         {
           id: '233332',
@@ -254,12 +322,12 @@
           orderType: '租赁订单',
           isChild: true,
           kuaidi: '0.00',
-          yajin: '300.00'
+          yajin: '300.00',
+          colSpan: 1
         }
       ]
     }
   ])
-
   for (let i = 0; i < 18; i++) {
     data.value.push({
       id: '10000' + i,
@@ -290,7 +358,8 @@
           orderType: '租赁订单',
           isChild: true,
           kuaidi: '0.00',
-          yajin: '300.00'
+          yajin: '300.00',
+          colSpan: 1
         }
       ]
     })
@@ -339,7 +408,7 @@
         {
           prop: 'name',
           label: '宝贝',
-          width: 530,
+          // width: 530,
           useSlot: true,
           disabled: true
           // fixed: 'left'
@@ -347,38 +416,40 @@
         {
           prop: 'price',
           label: '单价',
+          width: 145,
           useSlot: true,
           align: 'center'
         },
         {
           prop: 'number',
           label: '数量',
+          width: 145,
           align: 'center'
         },
         {
           prop: 'orderType',
           label: '订单类型',
-          width: 100,
           useSlot: true,
+          width: 170,
           align: 'center'
         },
         {
           prop: 'status',
           label: '交易状态',
-          width: 100,
+          width: 170,
           align: 'center'
         },
         {
           prop: 'totalPrice',
           label: '实收款',
+          width: 160,
           align: 'center',
-          width: 120,
           useSlot: true
         },
         {
           prop: 'operation',
           label: '操作',
-          width: 180,
+          width: 200,
           useSlot: true
           // fixed: 'right'
         }
@@ -393,7 +464,7 @@
   const handleSearch = () => {}
   const handleReset = () => {}
   const handleBatchDelete = () => {}
-  const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
+  const objectSpanMethod = ({ row, columnIndex }: any) => {
     if (!row.isChild) {
       if (columnIndex === 1) {
         return [1, 7]
@@ -407,6 +478,14 @@
       } else if (columnIndex == 0) {
         return [0, 0]
       }
+      if (columnIndex == 5 || columnIndex == 6) {
+        if (row.colSpan) {
+          return [row.colSpan, 1]
+        } else {
+          return [0, 0]
+        }
+      }
+
       return [1, 1]
     }
   }
@@ -416,6 +495,23 @@
     }
     return 'child-row'
   }
+
+  onMounted(() => {
+    nextTick(() => {
+      const tabBody = document.querySelector('.el-table__body-wrapper .el-scrollbar__wrap')
+      const tableInner = document.querySelector('.el-table__inner-wrapper')
+      tableInner?.classList.add('el-table_hidden-before')
+      const pagination = document.querySelector('.pagination')
+      pagination?.setAttribute('style', 'transform: translateY(-10000px)')
+      tabBody?.addEventListener('scroll', () => {
+        if (tabBody?.scrollHeight === tabBody?.scrollTop + tabBody?.clientHeight) {
+          pagination?.setAttribute('style', 'transform: translateY(0)')
+        } else {
+          pagination?.setAttribute('style', 'transform: translateY(-10000px)')
+        }
+      })
+    })
+  })
 </script>
 
 <style lang="scss" scoped>
@@ -426,10 +522,21 @@
     border-bottom: 0;
   }
   :deep(.el-checkbox--default .el-checkbox__inner) {
-    width: 21px !important;
-    height: 21px !important;
+    width: 19px !important;
+    height: 19px !important;
     &::before {
       top: 7px !important;
+    }
+  }
+  :deep(.art-search-bar) {
+    padding: 0;
+    border: none !important;
+    // .el-form-item--default {
+    //   margin-bottom: 0;
+    // }
+    .action-buttons-wrapper {
+      margin-bottom: 0 !important;
+      justify-content: flex-start !important;
     }
   }
   :deep(.el-table) {
@@ -482,6 +589,13 @@
         color: #999;
       }
     }
+    .el-table_hidden-before::before {
+      display: none;
+    }
+    .click_text {
+      color: #3d7fff;
+      cursor: pointer;
+    }
   }
   :deep(
     .el-table__body tr.hover-row > td.el-table__cell,
@@ -492,6 +606,9 @@
     background-color: transparent;
   }
   :deep(.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell) {
+    background-color: transparent;
+  }
+  :deep(.el-table__body tr > td.hover-cell) {
     background-color: transparent;
   }
   :deep(.el-table__row) {
@@ -520,6 +637,21 @@
       .order-info_bottom--info--other {
         color: #999;
         font-size: 12px;
+      }
+    }
+  }
+  :deep(.table-header) {
+    .right {
+      align-items: flex-start;
+    }
+    .art-table-header-bottom {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      .total-data_num {
+        color: #3d7fff;
+        padding: 0 5px;
       }
     }
   }

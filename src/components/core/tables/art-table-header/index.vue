@@ -1,99 +1,104 @@
 <!-- 表格头部，包含表格大小、刷新、全屏、列设置、其他设置 -->
 <template>
   <div class="table-header" id="art-table-header">
-    <div class="left">
-      <slot name="left"></slot>
-    </div>
-
-    <div class="right">
-      <div
-        v-if="showSearchBar != null"
-        class="btn"
-        @click="search"
-        :class="{ active: showSearchBar }"
-      >
-        <i class="iconfont-sys">&#xe6cb;</i>
-      </div>
-      <div
-        v-if="shouldShow('refresh')"
-        class="btn"
-        @click="refresh"
-        :class="{ loading: loading && isManualRefresh }"
-      >
-        <i class="iconfont-sys">&#xe615;</i>
+    <div class="table-header-inner">
+      <div class="left">
+        <slot name="left"></slot>
       </div>
 
-      <ElDropdown v-if="shouldShow('size')" @command="handleTableSizeChange">
-        <div class="btn">
-          <i class="iconfont-sys">&#xe63d;</i>
+      <div class="right">
+        <div
+          v-if="showSearchBar != null"
+          class="btn"
+          @click="search"
+          :class="{ active: showSearchBar }"
+        >
+          <i class="iconfont-sys">&#xe6cb;</i>
         </div>
-        <template #dropdown>
-          <ElDropdownMenu>
-            <div v-for="item in tableSizeOptions" :key="item.value" class="table-size-btn-item">
-              <ElDropdownItem
-                :key="item.value"
-                :command="item.value"
-                :class="{ 'is-selected': tableSize === item.value }"
-              >
-                {{ item.label }}
-              </ElDropdownItem>
-            </div>
-          </ElDropdownMenu>
-        </template>
-      </ElDropdown>
-
-      <div v-if="shouldShow('fullscreen')" class="btn" @click="toggleFullScreen">
-        <i class="iconfont-sys">{{ isFullScreen ? '&#xe62d;' : '&#xe8ce;' }}</i>
-      </div>
-
-      <!-- 列设置 -->
-      <ElPopover v-if="shouldShow('columns')" placement="bottom" trigger="click">
-        <template #reference>
-          <div class="btn"><i class="iconfont-sys">&#xe6bd;</i> </div>
-        </template>
-        <div>
-          <VueDraggable
-            v-model="columns"
-            :disabled="false"
-            filter=".fixed-column"
-            :prevent-on-filter="false"
-          >
-            <div
-              v-for="item in columns"
-              :key="item.prop || item.type"
-              class="column-option"
-              :class="{ 'fixed-column': item.fixed || item.disabled }"
-            >
-              <div class="drag-icon" :class="{ disabled: item.fixed || item.disabled }">
-                <i class="iconfont-sys">{{ item.fixed ? '&#xe648;' : '&#xe648;' }}</i>
-              </div>
-              <ElCheckbox v-model="item.checked" :disabled="item.disabled">{{
-                item.label || (item.type === 'selection' ? t('table.selection') : '')
-              }}</ElCheckbox>
-            </div>
-          </VueDraggable>
+        <div
+          v-if="shouldShow('refresh')"
+          class="btn"
+          @click="refresh"
+          :class="{ loading: loading && isManualRefresh }"
+        >
+          <i class="iconfont-sys">&#xe615;</i>
         </div>
-      </ElPopover>
-      <!-- 其他设置 -->
-      <ElPopover v-if="shouldShow('settings')" placement="bottom" trigger="click">
-        <template #reference>
+
+        <ElDropdown v-if="shouldShow('size')" @command="handleTableSizeChange">
           <div class="btn">
-            <i class="iconfont-sys" style="font-size: 17px">&#xe72b;</i>
+            <i class="iconfont-sys">&#xe63d;</i>
           </div>
-        </template>
-        <div>
-          <ElCheckbox v-if="showZebra" v-model="isZebra" :value="true">{{
-            t('table.zebra')
-          }}</ElCheckbox>
-          <ElCheckbox v-if="showBorder" v-model="isBorder" :value="true">{{
-            t('table.border')
-          }}</ElCheckbox>
-          <ElCheckbox v-if="showHeaderBackground" v-model="isHeaderBackground" :value="true">{{
-            t('table.headerBackground')
-          }}</ElCheckbox>
+          <template #dropdown>
+            <ElDropdownMenu>
+              <div v-for="item in tableSizeOptions" :key="item.value" class="table-size-btn-item">
+                <ElDropdownItem
+                  :key="item.value"
+                  :command="item.value"
+                  :class="{ 'is-selected': tableSize === item.value }"
+                >
+                  {{ item.label }}
+                </ElDropdownItem>
+              </div>
+            </ElDropdownMenu>
+          </template>
+        </ElDropdown>
+
+        <div v-if="shouldShow('fullscreen')" class="btn" @click="toggleFullScreen">
+          <i class="iconfont-sys">{{ isFullScreen ? '&#xe62d;' : '&#xe8ce;' }}</i>
         </div>
-      </ElPopover>
-      <slot name="right"></slot>
+
+        <!-- 列设置 -->
+        <ElPopover v-if="shouldShow('columns')" placement="bottom" trigger="click">
+          <template #reference>
+            <div class="btn"><i class="iconfont-sys">&#xe6bd;</i> </div>
+          </template>
+          <div>
+            <VueDraggable
+              v-model="columns"
+              :disabled="false"
+              filter=".fixed-column"
+              :prevent-on-filter="false"
+            >
+              <div
+                v-for="item in columns"
+                :key="item.prop || item.type"
+                class="column-option"
+                :class="{ 'fixed-column': item.fixed || item.disabled }"
+              >
+                <div class="drag-icon" :class="{ disabled: item.fixed || item.disabled }">
+                  <i class="iconfont-sys">{{ item.fixed ? '&#xe648;' : '&#xe648;' }}</i>
+                </div>
+                <ElCheckbox v-model="item.checked" :disabled="item.disabled">{{
+                  item.label || (item.type === 'selection' ? t('table.selection') : '')
+                }}</ElCheckbox>
+              </div>
+            </VueDraggable>
+          </div>
+        </ElPopover>
+        <!-- 其他设置 -->
+        <ElPopover v-if="shouldShow('settings')" placement="bottom" trigger="click">
+          <template #reference>
+            <div class="btn">
+              <i class="iconfont-sys" style="font-size: 17px">&#xe72b;</i>
+            </div>
+          </template>
+          <div>
+            <ElCheckbox v-if="showZebra" v-model="isZebra" :value="true">{{
+              t('table.zebra')
+            }}</ElCheckbox>
+            <ElCheckbox v-if="showBorder" v-model="isBorder" :value="true">{{
+              t('table.border')
+            }}</ElCheckbox>
+            <ElCheckbox v-if="showHeaderBackground" v-model="isHeaderBackground" :value="true">{{
+              t('table.headerBackground')
+            }}</ElCheckbox>
+          </div>
+        </ElPopover>
+        <slot name="right"></slot>
+      </div>
+    </div>
+    <div class="bottom">
+      <slot name="bottom"></slot>
     </div>
   </div>
 </template>
@@ -278,7 +283,11 @@
   .table-header {
     display: flex;
     justify-content: space-between;
-
+    flex-direction: column;
+    .table-header-inner {
+      display: flex;
+      justify-content: space-between;
+    }
     .left {
       display: flex;
       flex-wrap: wrap;
@@ -370,7 +379,9 @@
   @media (max-width: $device-phone) {
     .table-header {
       flex-direction: column;
-
+      .table-header-inner {
+        flex-direction: column;
+      }
       .right {
         display: flex;
         justify-content: flex-end;
