@@ -408,7 +408,7 @@
         {
           prop: 'name',
           label: '宝贝',
-          // width: 530,
+          width: 530,
           useSlot: true,
           disabled: true
           // fixed: 'left'
@@ -416,33 +416,33 @@
         {
           prop: 'price',
           label: '单价',
-          width: 145,
+          // width: 145,
           useSlot: true,
           align: 'center'
         },
         {
           prop: 'number',
           label: '数量',
-          width: 145,
+          // width: 145,
           align: 'center'
         },
         {
           prop: 'orderType',
           label: '订单类型',
           useSlot: true,
-          width: 170,
+          // width: 170,
           align: 'center'
         },
         {
           prop: 'status',
           label: '交易状态',
-          width: 170,
+          // width: 170,
           align: 'center'
         },
         {
           prop: 'totalPrice',
           label: '实收款',
-          width: 160,
+          // width: 160,
           align: 'center',
           useSlot: true
         },
