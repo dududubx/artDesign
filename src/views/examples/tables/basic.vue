@@ -21,6 +21,8 @@
             v-model="searchFormState"
             :items="searchItems"
             :is-expand="false"
+            :span="4.5"
+            :gutter="6"
             :show-expand="true"
             :show-reset-button="true"
             :show-search-button="true"
@@ -93,9 +95,16 @@
         </template>
         <!-- 操作列 -->
         <template #operation="{ row }">
-          <div class="operation-buttons">
-            <ArtButtonTable type="edit" :row="row" text="编辑" />
-            <ArtButtonTable type="delete" :row="row" text="删除" />
+          <div class="status-one">
+            <div class="price">{{ orderStatus[row.operationType] }}</div>
+            <div class="status-btn">
+              <span class="click_text">详情</span>
+              <div class="status-one" v-if="row.operationType === 1">
+                <span class="click_text">打单</span>
+                <span class="click_text">延长收货时间</span>
+              </div>
+              <span class="click_text" v-else>关闭交易</span>
+            </div>
           </div>
         </template>
       </ArtTable>
@@ -107,6 +116,12 @@
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
   import type { TabsConfig } from '@/types/component'
+
+  enum orderStatus {
+    '卖家已发货' = 1,
+    '已归还',
+    '待发货'
+  }
 
   defineOptions({ name: 'UserMixedUsageExample' })
   //tabs
@@ -153,93 +168,112 @@
   const searchFormState = ref({
     name: '',
     orderNo: '',
-    daterange: ['2025-01-01', '2025-02-10'],
+    daterange: [],
     orderType: '',
     phone: '',
     customerName: '',
-    payType: ''
+    payType: '',
+    goodsId: '',
+    logisticsId: ''
   })
   const searchItems = computed(() => [
-    {
-      key: 'orderType',
-      label: '订单类型',
-      type: 'select',
-      labelWidth: 90,
-      props: {
-        placeholder: '请选择订单类型',
-        options: [
-          {
-            label: '租赁订单',
-            value: 'rent'
-          }
-        ]
-      }
-    },
+    // {
+    //   key: 'orderType',
+    //   label: '',
+    //   type: 'select',
+    //   props: {
+    //     placeholder: '请选择订单类型',
+    //     options: [
+    //       {
+    //         label: '租赁订单',
+    //         value: 'rent'
+    //       }
+    //     ]
+    //   }
+    // },
     {
       key: 'name',
-      label: '商品名称',
-      labelWidth: 90,
+      label: '',
       type: 'input',
+      span: 4,
       props: {
-        placeholder: '请输入商品名称'
+        placeholder: '商品名称'
       }
     },
     {
       key: 'orderNo',
-      label: '订单号',
-      labelWidth: 90,
+      label: '',
       type: 'input',
+      span: 4,
       props: {
-        placeholder: '请输入订单号'
+        placeholder: '订单号'
+      }
+    },
+    {
+      key: 'goodsId',
+      label: '',
+      type: 'input',
+      span: 4,
+      props: {
+        placeholder: '商品id'
+      }
+    },
+    {
+      key: 'logisticsId',
+      label: '',
+      type: 'input',
+      span: 4,
+      props: {
+        placeholder: '物流单号'
       }
     },
     {
       key: 'daterange',
-      label: '创建时间',
-      labelWidth: 90,
+      label: '',
       type: 'daterange',
+      span: 9,
       props: {
         type: 'daterange',
-        startPlaceholder: '开始日期',
+        startPlaceholder: '创建时间:开始日期',
         endPlaceholder: '结束日期',
         valueFormat: 'YYYY-MM-DD'
       }
     },
-    {
-      key: 'customerName',
-      label: '收货人姓名',
-      labelWidth: 90,
-      type: 'input',
-      props: {
-        placeholder: '请输入收货人姓名',
-        maxlength: '11'
-      }
-    },
-    {
-      key: 'phone',
-      label: '收货人电话',
-      labelWidth: 90,
-      type: 'input',
-      props: {
-        placeholder: '请输入收货人电话',
-        maxlength: '11'
-      }
-    },
-    {
-      key: 'payType',
-      label: '交易状态',
-      labelWidth: 90,
-      type: 'select',
-      props: {
-        placeholder: '请选择交易状态',
-        options: [
-          {
-            label: '待发货',
-            value: '1'
-          }
-        ]
-      }
-    },
+    // {
+    //   key: 'customerName',
+    //   label: '收货人姓名',
+    //   labelWidth: 90,
+    //   type: 'input',
+    //   props: {
+    //     placeholder: '请输入收货人姓名',
+    //     maxlength: '11'
+    //   }
+    // },
+    // {
+    //   key: 'phone',
+    //   label: '收货人电话',
+    //   labelWidth: 90,
+    //   type: 'input',
+    //   props: {
+    //     placeholder: '请输入收货人电话',
+    //     maxlength: '11'
+    //   }
+    // },
+    // {
+    //   key: 'payType',
+    //   label: '交易状态',
+    //   labelWidth: 90,
+    //   type: 'select',
+    //   props: {
+    //     placeholder: '请选择交易状态',
+    //     options: [
+    //       {
+    //         label: '待发货',
+    //         value: '1'
+    //       }
+    //     ]
+    //   }
+    // }
   ])
   const selectedRows = ref<any[]>([])
   const data = ref([
@@ -272,6 +306,7 @@
           isChild: true,
           kuaidi: '0.00',
           yajin: '300.00',
+          operationType: 1,
           colSpan: 2
         },
         {
@@ -289,6 +324,7 @@
           orderType: '租赁订单',
           isChild: true,
           kuaidi: '0.00',
+          operationType: 1,
           yajin: '300.00'
         }
       ]
@@ -323,6 +359,7 @@
           isChild: true,
           kuaidi: '0.00',
           yajin: '300.00',
+          operationType: 2,
           colSpan: 1
         }
       ]
@@ -359,6 +396,7 @@
           isChild: true,
           kuaidi: '0.00',
           yajin: '300.00',
+          operationType: 3,
           colSpan: 1
         }
       ]
@@ -408,7 +446,7 @@
         {
           prop: 'name',
           label: '宝贝',
-          width: 530,
+          width: 500,
           useSlot: true,
           disabled: true
           // fixed: 'left'
@@ -416,14 +454,12 @@
         {
           prop: 'price',
           label: '单价',
-          // width: 145,
           useSlot: true,
           align: 'center'
         },
         {
           prop: 'number',
           label: '数量',
-          // width: 145,
           align: 'center'
         },
         {
@@ -431,7 +467,8 @@
           label: '订单类型',
           useSlot: true,
           // width: 170,
-          align: 'center'
+          align: 'center',
+          showOverflowTooltip: false
         },
         {
           prop: 'status',
@@ -440,18 +477,18 @@
           align: 'center'
         },
         {
+          prop: 'operation',
+          label: '订单操作',
+          useSlot: true,
+          align: 'center'
+        },
+        {
           prop: 'totalPrice',
           label: '实收款',
           // width: 160,
           align: 'center',
+          fixed: 'right',
           useSlot: true
-        },
-        {
-          prop: 'operation',
-          label: '操作',
-          width: 200,
-          useSlot: true
-          // fixed: 'right'
         }
       ]
     }
@@ -478,14 +515,13 @@
       } else if (columnIndex == 0) {
         return [0, 0]
       }
-      if (columnIndex == 6) {
+      if (columnIndex == 6 || columnIndex == 7) {
         if (row.colSpan) {
           return [row.colSpan, 1]
         } else {
           return [0, 0]
         }
       }
-
       return [1, 1]
     }
   }
@@ -515,144 +551,5 @@
 </script>
 
 <style lang="scss" scoped>
-  .user-page {
-    gap: 16px;
-  }
-  :deep(.el-table th.el-table__cell.is-leaf, .el-table td.el-table__cell) {
-    border-bottom: 0;
-  }
-  :deep(.el-checkbox--default .el-checkbox__inner) {
-    width: 19px !important;
-    height: 19px !important;
-    &::before {
-      top: 7px !important;
-    }
-  }
-  :deep(.art-search-bar) {
-    padding: 0;
-    border: none !important;
-    // .el-form-item--default {
-    //   margin-bottom: 0;
-    // }
-    .action-buttons-wrapper {
-      margin-bottom: 0 !important;
-      justify-content: flex-start !important;
-    }
-  }
-  :deep(.el-table) {
-    color: #111;
-    thead {
-      color: #404040;
-    }
-    [class*='el-table__row--level'] .el-table__expand-icon {
-      display: none;
-    }
-    .parent-row {
-      .el-table-column--selection > .cell {
-        width: 60px;
-      }
-      .el-table__cell {
-        // padding: 0;
-        .cell {
-          background-color: var(--el-table-row-hover-bg-color);
-          border-radius: 9px;
-          height: 45px;
-        }
-        .order-info_top {
-          display: flex;
-          align-items: center;
-          gap: 30px;
-          font-size: 12px;
-          // position: absolute;
-          // top: 10px;
-          // left: 42px;
-          width: 100%;
-          padding: 11px 0;
-          box-sizing: border-box;
-          border-radius: 0 9px 9px 0;
-        }
-      }
-    }
-    .child-row {
-      .el-table__placeholder {
-        display: none;
-      }
-      .el-table__indent {
-        display: none;
-      }
-    }
-    .total-price {
-      .other-price {
-        display: flex;
-        flex-direction: column;
-        font-size: 12px;
-        color: #999;
-      }
-    }
-    .el-table_hidden-before::before {
-      display: none;
-    }
-    .click_text {
-      color: #3d7fff;
-      cursor: pointer;
-    }
-  }
-  :deep(
-    .el-table__body tr.hover-row > td.el-table__cell,
-    .el-table__body tr.hover-row.current-row > td.el-table__cell,
-    .el-table__body tr.hover-row.el-table__row--striped > td.el-table__cell,
-    .el-table__body tr.hover-row.el-table__row--striped.current-row > td.el-table__cell
-  ) {
-    background-color: transparent;
-  }
-  :deep(.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell) {
-    background-color: transparent;
-  }
-  :deep(.el-table__body tr > td.hover-cell) {
-    background-color: transparent;
-  }
-  :deep(.el-table__row) {
-    position: relative;
-    .el-table__cell {
-      // padding-top: 80px;
-      // position: static !important;
-      border-bottom: 0;
-    }
-  }
-  :deep(.order-info) {
-    .order-info_bottom {
-      display: flex;
-      gap: 10px;
-      padding: 10px 0;
-      img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 9px;
-      }
-      .order-info_bottom--info--name {
-        color: #3d7fff;
-        font-size: 12px;
-      }
-      .order-info_bottom--info--other {
-        color: #999;
-        font-size: 12px;
-      }
-    }
-  }
-  :deep(.table-header) {
-    .right {
-      align-items: flex-start;
-    }
-    .art-table-header-bottom {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      font-size: 14px;
-      .total-data_num {
-        color: #3d7fff;
-        padding: 0 5px;
-      }
-    }
-  }
+  @use './style/basic.scss' as *;
 </style>
