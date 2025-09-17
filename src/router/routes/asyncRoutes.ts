@@ -427,12 +427,24 @@ export const asyncRoutes: AppRouteRecord[] = [
   {
     name: 'goods',
     path: '/goods',
-    component: RoutesAlias.ExamplesTables,
+    component: RoutesAlias.Layout,
     meta: {
       title: '商品管理',
       icon: '&#xe721;',
       roles: ['R_SUPER', 'R_ADMIN'] // 角色权限，前端控制模式（只有拥有这些角色的用户才能访问）
-    }
+    },
+    children: [
+      {
+        path: '/goodsTable',
+        name: 'goodsTable',
+        component: RoutesAlias.ExamplesTablesBasic,
+        meta: {
+          title: '商品列表',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN']
+        }
+      }
+    ]
   },
   {
     name: 'category',

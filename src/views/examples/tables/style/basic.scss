@@ -25,16 +25,46 @@
     //   margin-bottom: 0;
     // }
     .action-buttons-wrapper {
-        margin-bottom: 0 !important;
+        // margin-bottom: 0 !important;
         justify-content: flex-start !important;
+    }
+    .el-form-item--default{
+        background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+        border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
+        border: 1px solid var(--el-border-color);
+        --el-input-inner-height: calc(var(--el-input-height, 32px) - 2px);
+        align-items: center;
+        label, .el-form-item__label{
+            // padding: 0 0;
+            padding: 0 0 0 12px;
+            height: 34px;
+            line-height: 34px;
+            text-align: left;
+            color: var(--el-text-color-placeholder);
+            justify-content: flex-start;
+            font-size: 12px;
+        }
+        .el-input__wrapper{
+            box-shadow: none;
+            padding-left: 3px;
+        }
+        .el-input__inner{
+            color: var(--el-text-color-primary);
+        }
+        .el-select__wrapper{
+            box-shadow: none;
+        }
+    }
+    .is-focused{
+        border-color: var(--el-color-primary);
     }
 }
 
 :deep(.el-table) {
-    color: #111;
+    color: var(--el-text-color-primary);
 
     thead {
-        color: #404040;
+        color: var(--el-text-color-primary);
     }
     tbody{
         font-size: 12px;
@@ -84,14 +114,16 @@
             display: none;
         }
     }
-
+    .price{
+        font-size: 14px;
+    }
     .total-price {
         @include flex($flex-direction:column, $gap: 3px);
         .other-price {
             display: flex;
             flex-direction: column;
             font-size: 12px;
-            color: #999;
+            color: var(--el-text-color-placeholder);
         }
     }
 
@@ -100,7 +132,7 @@
     }
 
     .click_text {
-        color: #3d7fff;
+        color: var(--main-color);
         cursor: pointer;
     }
     .status-btn,.status-one{
@@ -147,12 +179,12 @@
         }
 
         .order-info_bottom--info--name {
-            color: #3d7fff;
+            color: var(--main-color);
             font-size: 12px;
         }
 
         .order-info_bottom--info--other {
-            color: #999;
+            color: var(--el-text-color-placeholder);
             font-size: 12px;
         }
     }
@@ -172,7 +204,7 @@
         font-size: 14px;
 
         .total-data_num {
-            color: #3d7fff;
+            color: var(--main-color);
             padding: 0 5px;
         }
     }

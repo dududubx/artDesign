@@ -11,7 +11,7 @@
     >
       <ElRow class="search-form-row" :gutter="gutter">
         <ElCol
-          v-for="item in visibleFormItems"
+          v-for="(item, index) in visibleFormItems"
           :key="item.key"
           :xs="24"
           :sm="12"
@@ -20,15 +20,18 @@
           :xl="item.span || span"
         >
           <ElFormItem
+            v-if="!item.hiddenFormItem"
             :label="item.label"
             :prop="item.key"
             :label-width="item.label ? item.labelWidth || labelWidth : undefined"
+            :class="{ 'is-focused': focusIndex === index }"
           >
             <slot :name="item.key" :item="item" :modelValue="modelValue">
               <component
                 :is="getComponent(item)"
                 v-model="modelValue[item.key]"
                 v-bind="getProps(item)"
+                @focus="handleFocus(index)"
               >
                 <!-- 下拉选择 -->
                 <template v-if="item.type === 'select' && getProps(item)?.options">
@@ -65,7 +68,14 @@
             </slot>
           </ElFormItem>
         </ElCol>
-        <ElCol :xs="24" :sm="24" :md="span" :lg="span" :xl="span" class="action-column">
+        <ElCol
+          :xs="24"
+          :sm="24"
+          :md="span"
+          :lg="searchSpan || span"
+          :xl="searchSpan || span"
+          class="action-column"
+        >
           <div class="action-buttons-wrapper" :style="actionButtonsStyle">
             <div class="form-buttons">
               <el-button v-if="showReset" class="reset-button" @click="handleReset" v-ripple>
@@ -177,6 +187,10 @@
     slots?: Record<string, (() => any) | undefined>
     /** 表单项的占位符文本 */
     placeholder?: string
+    /** 是否隐藏该表单项 */
+    hiddenFormItem?: boolean
+    /** 是否自动聚焦该表单项 */
+    focus?: boolean
     /** 更多属性配置请参考 ElementPlus 官方文档 */
   }
 
@@ -206,6 +220,8 @@
     showSearch?: boolean
     /** 是否禁用搜索按钮 */
     disabledSearch?: boolean
+    /** 搜索按钮占据的列宽 */
+    searchSpan?: number
   }
 
   const props = withDefaults(defineProps<SearchBarProps>(), {
@@ -220,7 +236,8 @@
     buttonLeftLimit: 2,
     showReset: true,
     showSearch: true,
-    disabledSearch: false
+    disabledSearch: false,
+    searchSpan: 6
   })
 
   interface SearchBarEmits {
@@ -270,7 +287,13 @@
    * 可见的表单项
    */
   const visibleFormItems = computed(() => {
-    const filteredItems = props.items.filter((item) => !item.hidden)
+    let filteredItems = []
+    if (width.value < 1200) {
+      filteredItems = props.items.filter((item) => !item.hidden && !item.hiddenFormItem)
+    } else {
+      filteredItems = props.items.filter((item) => !item.hidden)
+    }
+    console.log(width.value, filteredItems)
     const shouldShowLess = !props.isExpand && !isExpanded.value
     if (shouldShowLess) {
       const maxItemsPerRow = Math.floor(24 / props.span) - 1
@@ -283,7 +306,12 @@
    * 是否应该显示展开/收起按钮
    */
   const shouldShowExpandToggle = computed(() => {
-    const filteredItems = props.items.filter((item) => !item.hidden)
+    let filteredItems = []
+    if (width.value < 1200) {
+      filteredItems = props.items.filter((item) => !item.hidden && !item.hiddenFormItem)
+    } else {
+      filteredItems = props.items.filter((item) => !item.hidden)
+    }
     return (
       !props.isExpand && props.showExpand && filteredItems.length > Math.floor(24 / props.span) - 1
     )
@@ -336,6 +364,10 @@
    */
   const handleSearch = () => {
     emit('search')
+  }
+  const focusIndex = ref()
+  const handleFocus = (val: number) => {
+    focusIndex.value = val
   }
 
   defineExpose({

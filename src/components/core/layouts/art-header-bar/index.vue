@@ -25,7 +25,7 @@
         </div>
 
         <!-- 快速入口 -->
-        <ArtFastEnter v-if="shouldShowFastEnter && width >= headerBarFastEnterMinWidth" />
+        <!-- <ArtFastEnter v-if="shouldShowFastEnter && width >= headerBarFastEnterMinWidth" /> -->
 
         <!-- 面包屑 -->
         <ArtBreadcrumb
@@ -41,7 +41,7 @@
 
       <div class="right">
         <!-- 搜索 -->
-        <div class="search-wrap" v-if="shouldShowGlobalSearch">
+        <!-- <div class="search-wrap" v-if="shouldShowGlobalSearch">
           <div class="search-input" @click="openSearchDialog">
             <div class="left">
               <i class="iconfont-sys">&#xe710;</i>
@@ -53,7 +53,7 @@
               <span>k</span>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- 全屏按钮 -->
         <!-- <div class="btn-box screen-box" v-if="shouldShowFullscreen" @click="toggleFullScreen">
@@ -79,7 +79,7 @@
           </div>
         </div> -->
         <!-- 语言 -->
-        <div class="btn-box" v-if="shouldShowLanguage">
+        <!-- <div class="btn-box" v-if="shouldShowLanguage">
           <ElDropdown @command="changeLanguage" popper-class="langDropDownStyle">
             <div class="btn language-btn">
               <i class="iconfont-sys">&#xe611;</i>
@@ -98,7 +98,7 @@
               </ElDropdownMenu>
             </template>
           </ElDropdown>
-        </div>
+        </div> -->
         <!-- 设置 -->
         <div class="btn-box" v-if="shouldShowSettings" @click="openSetting">
           <ElPopover :visible="showSettingGuide" placement="bottom-start" :width="190" :offset="0">
@@ -107,22 +107,22 @@
                 <i class="iconfont-sys">&#xe6d0;</i>
               </div>
             </template>
-            <template #default>
+            <!-- <template #default>
               <p
                 >{{ $t('topBar.guide.title')
                 }}<span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.theme') }} </span
                 >、 <span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.menu') }} </span
                 >{{ $t('topBar.guide.description') }}
               </p>
-            </template>
+            </template> -->
           </ElPopover>
         </div>
         <!-- 切换主题 -->
-        <div class="btn-box" v-if="shouldShowThemeToggle" @click="themeAnimation">
+        <!-- <div class="btn-box" v-if="shouldShowThemeToggle" @click="themeAnimation">
           <div class="btn theme-btn">
             <i class="iconfont-sys">{{ isDark ? '&#xe6b5;' : '&#xe725;' }}</i>
           </div>
-        </div>
+        </div> -->
 
         <!-- 用户头像、菜单 -->
         <div class="user">

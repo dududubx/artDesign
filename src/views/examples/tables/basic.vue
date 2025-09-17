@@ -10,6 +10,7 @@
         layout="refresh,columns"
         fullClass="art-table-card"
         v-model:columns="columnChecks"
+        :showRemoveToBottom="true"
         @refresh="handleReset"
       >
         <template #left>
@@ -21,8 +22,7 @@
             v-model="searchFormState"
             :items="searchItems"
             :is-expand="false"
-            :span="4.5"
-            :gutter="6"
+            :span="3.4"
             :show-expand="true"
             :show-reset-button="true"
             :show-search-button="true"
@@ -169,111 +169,148 @@
     name: '',
     orderNo: '',
     daterange: [],
-    orderType: '',
+    orderType: 'all',
     phone: '',
     customerName: '',
-    payType: '',
+    payType: 'all',
     goodsId: '',
     logisticsId: ''
   })
   const searchItems = computed(() => [
-    // {
-    //   key: 'orderType',
-    //   label: '',
-    //   type: 'select',
-    //   props: {
-    //     placeholder: '请选择订单类型',
-    //     options: [
-    //       {
-    //         label: '租赁订单',
-    //         value: 'rent'
-    //       }
-    //     ]
-    //   }
-    // },
     {
       key: 'name',
-      label: '',
+      label: '商品名称',
       type: 'input',
-      span: 4,
+      span: 3,
       props: {
-        placeholder: '商品名称'
+        placeholder: '',
+        clearable: true
       }
     },
     {
       key: 'orderNo',
-      label: '',
+      label: '订单号',
       type: 'input',
-      span: 4,
+      span: 3,
       props: {
-        placeholder: '订单号'
+        placeholder: '',
+        clearable: true
       }
     },
     {
       key: 'goodsId',
-      label: '',
+      label: '商品id',
       type: 'input',
-      span: 4,
+      span: 3,
       props: {
-        placeholder: '商品id'
+        placeholder: '',
+        clearable: true
       }
     },
     {
       key: 'logisticsId',
-      label: '',
+      label: '物流单号',
       type: 'input',
-      span: 4,
+      span: 3,
       props: {
-        placeholder: '物流单号'
+        placeholder: '',
+        clearable: true
       }
     },
     {
       key: 'daterange',
-      label: '',
+      label: '创建时间',
       type: 'daterange',
-      span: 9,
+      span: 6,
       props: {
         type: 'daterange',
-        startPlaceholder: '创建时间:开始日期',
+        startPlaceholder: '开始日期',
         endPlaceholder: '结束日期',
-        valueFormat: 'YYYY-MM-DD'
+        valueFormat: 'YYYY-MM-DD',
+        format: 'YYYY-MM-DD HH:mm:ss',
+        prefixIcon: 'none',
+        clearable: true
       }
     },
-    // {
-    //   key: 'customerName',
-    //   label: '收货人姓名',
-    //   labelWidth: 90,
-    //   type: 'input',
-    //   props: {
-    //     placeholder: '请输入收货人姓名',
-    //     maxlength: '11'
-    //   }
-    // },
-    // {
-    //   key: 'phone',
-    //   label: '收货人电话',
-    //   labelWidth: 90,
-    //   type: 'input',
-    //   props: {
-    //     placeholder: '请输入收货人电话',
-    //     maxlength: '11'
-    //   }
-    // },
-    // {
-    //   key: 'payType',
-    //   label: '交易状态',
-    //   labelWidth: 90,
-    //   type: 'select',
-    //   props: {
-    //     placeholder: '请选择交易状态',
-    //     options: [
-    //       {
-    //         label: '待发货',
-    //         value: '1'
-    //       }
-    //     ]
-    //   }
-    // }
+    {
+      key: 'endTime',
+      label: '结束时间',
+      type: 'daterange',
+      span: 6,
+      props: {
+        type: 'daterange',
+        startPlaceholder: '开始日期',
+        endPlaceholder: '结束日期',
+        valueFormat: 'YYYY-MM-DD',
+        prefixIcon: 'none',
+        format: 'YYYY-MM-DD HH:mm:ss',
+        clearable: true
+      }
+    },
+    {
+      key: 'orderType',
+      label: '订单类型',
+      type: 'select',
+      span: 3,
+      props: {
+        placeholder: '',
+        options: [
+          {
+            label: '全部',
+            value: 'all'
+          },
+          {
+            label: '租赁订单',
+            value: 'rent'
+          }
+        ],
+        clearable: true
+      }
+    },
+    {
+      key: 'payType',
+      label: '订单状态',
+      type: 'select',
+      span: 3,
+      props: {
+        placeholder: '',
+        options: [
+          {
+            label: '全部',
+            value: 'all'
+          },
+          {
+            label: '待发货',
+            value: '1'
+          }
+        ],
+        clearable: true
+      }
+    },
+    {
+      key: 'customerName',
+      label: '收货人姓名',
+      type: 'input',
+      labelWidth: 90,
+      span: 3,
+      props: {
+        placeholder: '',
+        maxlength: '',
+        clearable: true
+      }
+    },
+    {
+      key: 'phone',
+      label: '收货人电话',
+      type: 'input',
+      labelWidth: 90,
+      span: 3,
+      props: {
+        placeholder: '',
+        maxlength: '11',
+        clearable: true
+      }
+    }
   ])
   const selectedRows = ref<any[]>([])
   const data = ref([

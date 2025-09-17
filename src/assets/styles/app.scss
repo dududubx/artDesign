@@ -13,7 +13,9 @@
   font-weight: 400;
   src: url(../fonts/Montserrat.woff2) format('woff2');
 }
-
+html{
+  --el-text-color-primary: #111 !important;
+}
 .btn-icon {
   font-size: 10px;
 }
