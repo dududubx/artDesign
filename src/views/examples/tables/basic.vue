@@ -177,81 +177,11 @@
     logisticsId: ''
   })
   const searchItems = computed(() => [
-    {
-      key: 'name',
-      label: '商品名称',
-      type: 'input',
-      span: 3,
-      props: {
-        placeholder: '',
-        clearable: true
-      }
-    },
-    {
-      key: 'orderNo',
-      label: '订单号',
-      type: 'input',
-      span: 3,
-      props: {
-        placeholder: '',
-        clearable: true
-      }
-    },
-    {
-      key: 'goodsId',
-      label: '商品id',
-      type: 'input',
-      span: 3,
-      props: {
-        placeholder: '',
-        clearable: true
-      }
-    },
-    {
-      key: 'logisticsId',
-      label: '物流单号',
-      type: 'input',
-      span: 3,
-      props: {
-        placeholder: '',
-        clearable: true
-      }
-    },
-    {
-      key: 'daterange',
-      label: '创建时间',
-      type: 'daterange',
-      span: 6,
-      props: {
-        type: 'daterange',
-        startPlaceholder: '开始日期',
-        endPlaceholder: '结束日期',
-        valueFormat: 'YYYY-MM-DD',
-        format: 'YYYY-MM-DD HH:mm:ss',
-        prefixIcon: 'none',
-        clearable: true
-      }
-    },
-    {
-      key: 'endTime',
-      label: '结束时间',
-      type: 'daterange',
-      span: 6,
-      props: {
-        type: 'daterange',
-        startPlaceholder: '开始日期',
-        endPlaceholder: '结束日期',
-        valueFormat: 'YYYY-MM-DD',
-        prefixIcon: 'none',
-        format: 'YYYY-MM-DD HH:mm:ss',
-        clearable: true
-      }
-    },
-    {
+     {
       key: 'orderType',
       label: '订单类型',
       type: 'select',
-      span: 3,
+      span: 4,
       props: {
         placeholder: '',
         options: [
@@ -271,7 +201,7 @@
       key: 'payType',
       label: '订单状态',
       type: 'select',
-      span: 3,
+      span: 4,
       props: {
         placeholder: '',
         options: [
@@ -288,11 +218,81 @@
       }
     },
     {
+      key: 'name',
+      label: '商品名称',
+      type: 'input',
+      span: 4,
+      props: {
+        placeholder: '',
+        clearable: true
+      }
+    },
+    {
+      key: 'orderNo',
+      label: '订单号',
+      type: 'input',
+      span: 4,
+      props: {
+        placeholder: '',
+        clearable: true
+      }
+    },
+    {
+      key: 'goodsId',
+      label: '商品id',
+      type: 'input',
+      span: 4,
+      props: {
+        placeholder: '',
+        clearable: true
+      }
+    },
+    {
+      key: 'logisticsId',
+      label: '物流单号',
+      type: 'input',
+      span: 4,
+      props: {
+        placeholder: '',
+        clearable: true
+      }
+    },
+    {
+      key: 'daterange',
+      label: '创建时间',
+      type: 'daterange',
+      span: 8,
+      props: {
+        type: 'daterange',
+        startPlaceholder: '开始日期',
+        endPlaceholder: '结束日期',
+        valueFormat: 'YYYY-MM-DD',
+        format: 'YYYY-MM-DD HH:mm:ss',
+        prefixIcon: 'none',
+        clearable: true
+      }
+    },
+    {
+      key: 'endTime',
+      label: '结束时间',
+      type: 'daterange',
+      span: 8,
+      props: {
+        type: 'daterange',
+        startPlaceholder: '开始日期',
+        endPlaceholder: '结束日期',
+        valueFormat: 'YYYY-MM-DD',
+        prefixIcon: 'none',
+        format: 'YYYY-MM-DD HH:mm:ss',
+        clearable: true
+      }
+    },
+    {
       key: 'customerName',
       label: '收货人姓名',
       type: 'input',
       labelWidth: 90,
-      span: 3,
+      span: 4,
       props: {
         placeholder: '',
         maxlength: '',
@@ -304,7 +304,7 @@
       label: '收货人电话',
       type: 'input',
       labelWidth: 90,
-      span: 3,
+      span: 4,
       props: {
         placeholder: '',
         maxlength: '11',
