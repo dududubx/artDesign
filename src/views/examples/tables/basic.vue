@@ -577,7 +577,7 @@
       const pagination = document.querySelector('.pagination')
       pagination?.setAttribute('style', 'transform: translateY(-10000px)')
       tabBody?.addEventListener('scroll', () => {
-        if (tabBody?.scrollHeight === tabBody?.scrollTop + tabBody?.clientHeight) {
+        if (tabBody?.scrollHeight <= Math.floor(tabBody?.scrollTop + tabBody?.clientHeight + 1)) {
           pagination?.setAttribute('style', 'transform: translateY(0)')
         } else {
           pagination?.setAttribute('style', 'transform: translateY(-10000px)')
