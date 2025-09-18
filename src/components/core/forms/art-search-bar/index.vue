@@ -293,7 +293,6 @@
     } else {
       filteredItems = props.items.filter((item) => !item.hidden)
     }
-    console.log(width.value, filteredItems)
     const shouldShowLess = !props.isExpand && !isExpanded.value
     if (shouldShowLess) {
       const maxItemsPerRow = Math.floor(24 / props.span) - 1
