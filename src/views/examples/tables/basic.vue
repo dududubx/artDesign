@@ -291,7 +291,6 @@
       key: 'customerName',
       label: '收货人姓名',
       type: 'input',
-      labelWidth: 90,
       span: 3,
       props: {
         placeholder: '',
@@ -303,7 +302,6 @@
       key: 'phone',
       label: '收货人电话',
       type: 'input',
-      labelWidth: 90,
       span: 3,
       props: {
         placeholder: '',
