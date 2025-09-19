@@ -417,7 +417,7 @@ export const asyncRoutes: AppRouteRecord[] = [
   {
     name: 'order',
     path: '/order',
-    component: RoutesAlias.ExamplesTablesBasic,
+    component: RoutesAlias.OrderMenu,
     meta: {
       title: 'menus.order.title',
       icon: '&#xe721;',
@@ -437,7 +437,7 @@ export const asyncRoutes: AppRouteRecord[] = [
       {
         path: '/goodsTable',
         name: 'goodsTable',
-        component: RoutesAlias.ExamplesTablesBasic,
+        component: RoutesAlias.GoodsMenu,
         meta: {
           title: '商品列表',
           keepAlive: true,
@@ -459,12 +459,24 @@ export const asyncRoutes: AppRouteRecord[] = [
   {
     name: 'inventory',
     path: '/inventory',
-    component: RoutesAlias.NestedMenu1,
+    component: RoutesAlias.Layout,
     meta: {
       title: '库存管理',
       icon: '&#xe721;',
       roles: ['R_SUPER', 'R_ADMIN'] // 角色权限，前端控制模式（只有拥有这些角色的用户才能访问）
-    }
+    },
+    children: [
+      {
+        path: '/inventoryTable',
+        name: 'inventoryTable',
+        component: RoutesAlias.InventoryMenu,
+        meta: {
+          title: '库存列表',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN']
+        }
+      }
+    ]
   },
   {
     name: 'warehouse',
@@ -543,94 +555,17 @@ export const asyncRoutes: AppRouteRecord[] = [
             }
           ]
         }
+      },
+      {
+        path: '/site',
+        name: 'site',
+        component: RoutesAlias.SiteSetting,
+        meta: {
+          title: '站点设置',
+          keepAlive: true,
+          roles: ['R_SUPER']
+        }
       }
-      // {
-      //   path: 'nested',
-      //   name: 'Nested',
-      //   component: '',
-      //   meta: {
-      //     title: 'menus.system.nested',
-      //     keepAlive: true
-      //   },
-      //   children: [
-      //     {
-      //       path: 'menu1',
-      //       name: 'NestedMenu1',
-      //       component: RoutesAlias.NestedMenu1,
-      //       meta: {
-      //         title: 'menus.system.menu1',
-      //         icon: '&#xe676;',
-      //         keepAlive: true
-      //       }
-      //     },
-      //     {
-      //       path: 'menu2',
-      //       name: 'NestedMenu2',
-      //       component: '',
-      //       meta: {
-      //         title: 'menus.system.menu2',
-      //         icon: '&#xe676;',
-      //         keepAlive: true
-      //       },
-      //       children: [
-      //         {
-      //           path: 'menu2-1',
-      //           name: 'NestedMenu2-1',
-      //           component: RoutesAlias.NestedMenu21,
-      //           meta: {
-      //             title: 'menus.system.menu21',
-      //             icon: '&#xe676;',
-      //             keepAlive: true
-      //           }
-      //         }
-      //       ]
-      //     },
-      //     {
-      //       path: 'menu3',
-      //       name: 'NestedMenu3',
-      //       component: '',
-      //       meta: {
-      //         title: 'menus.system.menu3',
-      //         icon: '&#xe676;',
-      //         keepAlive: true
-      //       },
-      //       children: [
-      //         {
-      //           path: 'menu3-1',
-      //           name: 'NestedMenu3-1',
-      //           component: RoutesAlias.NestedMenu31,
-      //           meta: {
-      //             title: 'menus.system.menu31',
-      //             icon: '&#xe676;',
-      //             keepAlive: true
-      //           }
-      //         },
-      //         {
-      //           path: 'menu3-2',
-      //           name: 'NestedMenu3-2',
-      //           component: '',
-      //           meta: {
-      //             title: 'menus.system.menu32',
-      //             icon: '&#xe676;',
-      //             keepAlive: true
-      //           },
-      //           children: [
-      //             {
-      //               path: 'menu3-2-1',
-      //               name: 'NestedMenu3-2-1',
-      //               component: RoutesAlias.NestedMenu321,
-      //               meta: {
-      //                 title: 'menus.system.menu321',
-      //                 icon: '&#xe676;',
-      //                 keepAlive: true
-      //               }
-      //             }
-      //           ]
-      //         }
-      //       ]
-      //     }
-      //   ]
-      // }
     ]
   }
   // {

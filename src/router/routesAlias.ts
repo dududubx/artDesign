@@ -58,5 +58,10 @@ export enum RoutesAlias {
   // 权限演示页面
   PermissionSwitchRole = '/examples/permission/switch-role', // 切换权限页面
   PermissionButtonAuth = '/examples/permission/button-auth', // 按钮权限演示页面
-  PermissionPageVisibility = '/examples/permission/page-visibility' // 页面可见性演示页面
+  PermissionPageVisibility = '/examples/permission/page-visibility', // 页面可见性演示页面
+  OrderMenu = '/order', // 订单菜单
+  GoodsMenu = '/goods', // 商品菜单
+  InventoryMenu = '/inventory', // 库存菜单
+  SiteSetting = '/system/site',
+  NoteSetting = '/system/note'
 }
