@@ -35,10 +35,10 @@
           <div class="art-table-header-bottom">
             <div class="total-data">
               共查询到<span class="total-data_num">{{ allData.length }}</span
-              >个订单
+              >个订单删除
             </div>
             <div class="add-button">
-              <ElButton @click="handleBatchDelete" v-ripple> 新增订单 </ElButton>
+              <ElButton @click="handleBatchDelete" v-ripple> 创建商品 </ElButton>
             </div>
           </div>
         </template>
@@ -48,12 +48,9 @@
         rowKey="id"
         :show-table-header="true"
         :loading="loading"
-        :default-expand-all="true"
         :data="data"
         :columns="columns"
         :pagination="pagination"
-        :span-method="objectSpanMethod"
-        :row-class-name="rowClassName"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -78,10 +75,14 @@
         <template #price="{ row }">
           <span class="price">¥{{ row.price }}</span>
         </template>
-        <template #orderType="{ row }">
-          <ElTag effect="light">
-            {{ row.orderType }}
-          </ElTag>
+        <template #status="{ row }">
+          <el-switch
+            v-model="row.status"
+            class="ml-2"
+            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+            :active-value="1"
+            :inactive-value="0"
+          />
         </template>
         <!-- 操作列 -->
         <template #operation="{ row }">
@@ -105,6 +106,7 @@
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
   import type { TabsConfig } from '@/types/component'
+  import { useWindowSize } from '@vueuse/core'
 
   enum orderStatus {
     '卖家已发货' = 1,
@@ -152,6 +154,7 @@
       label: '已完成'
     }
   ])
+  const { width } = useWindowSize()
   const activeName = ref('allOrder')
   // 表单搜索初始值
   const searchFormState = ref({
@@ -175,12 +178,16 @@
         placeholder: '',
         options: [
           {
-            label: '全部',
+            label: '全部商品',
             value: 'all'
           },
           {
-            label: '待发货',
+            label: '出售中',
             value: '1'
+          },
+          {
+            label: '已下架',
+            value: '2'
           }
         ],
         clearable: true
@@ -210,132 +217,66 @@
   const selectedRows = ref<any[]>([])
   const data = ref([
     {
-      id: '23333',
-      name: '',
+      id: '233331',
+      name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '4401438264980299820',
-      createTime: '2025-06-23 00:37:48',
-      price: '',
+      createTime: '2025-08-15 00:37:48',
+      price: '1',
       number: '15',
-      status: '待发货',
+      status: 1,
       totalPrice: 15,
-      imgUrl: '',
-      other: '',
-      orderType: '',
-      children: [
-        {
-          id: '233331',
-          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
-          orderId: '4401438264980299820',
-          createTime: '2025-08-15 00:37:48',
-          price: '1',
-          number: '15',
-          status: '待发货',
-          totalPrice: 15,
-          imgUrl:
-            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
-          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
-          orderType: '租赁订单',
-          isChild: true,
-          kuaidi: '0.00',
-          yajin: '300.00',
-          operationType: 1,
-          colSpan: 2,
-          totalSales: 18
-        },
-        {
-          id: '233332',
-          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
-          orderId: '4401438264980299820',
-          createTime: '2025-06-23 00:37:48',
-          price: '1',
-          number: '15',
-          status: '待发货',
-          totalPrice: 15,
-          imgUrl:
-            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
-          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
-          orderType: '租赁订单',
-          isChild: true,
-          kuaidi: '0.00',
-          operationType: 1,
-          yajin: '300.00',
-          totalSales: 10
-        }
-      ]
+      imgUrl:
+        'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
+      other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
+      orderType: '租赁订单',
+      isChild: true,
+      kuaidi: '0.00',
+      yajin: '300.00',
+      operationType: 1,
+      colSpan: 2,
+      totalSales: 18
     },
     {
-      id: '58888',
+      id: '588881',
       name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '2927503562673969294',
       createTime: '2025-09-12 10:34:12',
       price: '1',
       number: '15',
-      status: '待发货',
+      status: 0,
       totalPrice: 15,
       imgUrl:
         'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
       other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
       orderType: '租赁订单',
-      children: [
-        {
-          id: '588881',
-          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
-          orderId: '2927503562673969294',
-          createTime: '2025-09-12 10:34:12',
-          price: '1',
-          number: '15',
-          status: '待发货',
-          totalPrice: 15,
-          imgUrl:
-            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
-          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
-          orderType: '租赁订单',
-          isChild: true,
-          kuaidi: '0.00',
-          yajin: '300.00',
-          operationType: 2,
-          colSpan: 1,
-          totalSales: 15
-        }
-      ]
+      isChild: true,
+      kuaidi: '0.00',
+      yajin: '300.00',
+      operationType: 2,
+      colSpan: 1,
+      totalSales: 15
     }
   ])
   for (let i = 0; i < 18; i++) {
     data.value.push({
-      id: '10000' + i,
+      id: '100001' + i,
       name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '2927503562673969294' + i,
       createTime: '2025-09-12 10:34:12',
       price: '1',
       number: '15',
-      status: '待发货',
+      status: i % 2,
       totalPrice: 15,
       imgUrl:
         'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
       other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
       orderType: '租赁订单',
-      children: [
-        {
-          id: '100001' + i,
-          name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
-          orderId: '2927503562673969294' + i,
-          createTime: '2025-09-12 10:34:12',
-          price: '1',
-          number: '15',
-          status: '待发货',
-          totalPrice: 15,
-          imgUrl:
-            'https://img.alicdn.com/imgextra/i3/2207518337863/O1CN018R1Dm327xJLz88euJ_!!2207518337863.jpg_.webp',
-          other: '内存容量：无版本类型：海外版套餐：套餐一颜色分类：游戏卡带（30天租期）',
-          orderType: '租赁订单',
-          isChild: true,
-          kuaidi: '0.00',
-          yajin: '300.00',
-          operationType: 3,
-          colSpan: 1,
-          totalSales: i
-        }
-      ]
+      isChild: true,
+      kuaidi: '0.00',
+      yajin: '300.00',
+      operationType: 3,
+      colSpan: 1,
+      totalSales: i
     })
   }
   const allData = ref<any[]>([...data.value])
@@ -378,7 +319,7 @@
         userEmail: ''
       },
       columnsFactory: () => [
-        { type: 'selection', width: 38 },
+        { type: 'selection', width: 50 },
         {
           prop: 'name',
           label: '商品名称',
@@ -407,7 +348,8 @@
           prop: 'status',
           label: '商品状态',
           // width: 170,
-          align: 'center'
+          align: 'center',
+          useSlot: true
         },
         {
           prop: 'createTime',
@@ -419,7 +361,8 @@
           prop: 'operation',
           label: '操作',
           useSlot: true,
-          align: 'center'
+          align: 'center',
+          fixed: 'right'
         }
       ]
     }
@@ -432,55 +375,47 @@
   const handleSearch = () => {}
   const handleReset = () => {}
   const handleBatchDelete = () => {}
-  const objectSpanMethod = ({ row, columnIndex }: any) => {
-    if (!row.isChild) {
-      if (columnIndex === 1) {
-        return [1, 7]
-      } else if (columnIndex == 0) {
-        return [1, 1]
-      }
-      return [0, 0]
-    } else {
-      if (columnIndex === 1) {
-        return [1, 2]
-      } else if (columnIndex == 0) {
-        return [0, 0]
-      }
-      if (columnIndex == 6 || columnIndex == 7) {
-        if (row.colSpan) {
-          return [row.colSpan, 1]
-        } else {
-          return [0, 0]
-        }
-      }
-      return [1, 1]
+  watch(
+    () => width.value,
+    () => {
+      resizeTablePagination()
     }
-  }
-  const rowClassName = ({ row }: any) => {
-    if (!row.isChild) {
-      return 'parent-row'
+  )
+  const resizeTablePagination = () => {
+    const pagination = document.querySelector('.pagination')
+    if (width.value <= 500) {
+      pagination?.setAttribute('style', 'transform: translateY(0)')
+      return false
     }
-    return 'child-row'
+    const tabBody = document.querySelector('.el-table__body-wrapper .el-scrollbar__wrap')
+    const tableInner = document.querySelector('.el-table__inner-wrapper')
+    tableInner?.classList.add('el-table_hidden-before')
+    pagination?.setAttribute('style', 'transform: translateY(-10000px)')
+    tabBody?.addEventListener('scroll', () => {
+      console.log('scroll:', tabBody?.scrollHeight, tabBody?.scrollTop + tabBody?.clientHeight)
+      if (tabBody?.scrollHeight <= Math.floor(tabBody?.scrollTop + tabBody?.clientHeight + 1)) {
+        pagination?.setAttribute('style', 'transform: translateY(0)')
+      } else {
+        pagination?.setAttribute('style', 'transform: translateY(-10000px)')
+      }
+    })
   }
-
   onMounted(() => {
     nextTick(() => {
-      const tabBody = document.querySelector('.el-table__body-wrapper .el-scrollbar__wrap')
-      const tableInner = document.querySelector('.el-table__inner-wrapper')
-      tableInner?.classList.add('el-table_hidden-before')
-      const pagination = document.querySelector('.pagination')
-      pagination?.setAttribute('style', 'transform: translateY(-10000px)')
-      tabBody?.addEventListener('scroll', () => {
-        if (tabBody?.scrollHeight <= Math.floor(tabBody?.scrollTop + tabBody?.clientHeight + 1)) {
-          pagination?.setAttribute('style', 'transform: translateY(0)')
-        } else {
-          pagination?.setAttribute('style', 'transform: translateY(-10000px)')
-        }
-      })
+      resizeTablePagination()
     })
   })
 </script>
 
 <style lang="scss" scoped>
   @use '@styles/basicTable.scss' as *;
+  :deep(.art-table) {
+    .el-table__row .el-table__cell {
+      position: relative;
+      border-bottom: 1px dashed var(--el-text-color-placeholder);
+    }
+    .el-table__body-wrapper .el-table-column--selection > .cell {
+      transform: translateY(-140%);
+    }
+  }
 </style>
