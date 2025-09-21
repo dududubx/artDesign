@@ -139,6 +139,9 @@
     .status-btn,.status-one{
         @include flex($flex-direction:column, $gap: 3px)
     }
+    .cell.el-tooltip{
+        text-overflow: ellipsis;
+    }
 }
 
 :deep(.el-table__body tr.hover-row > td.el-table__cell,

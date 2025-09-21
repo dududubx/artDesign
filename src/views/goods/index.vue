@@ -355,7 +355,8 @@
           prop: 'createTime',
           label: '创建时间',
           // width: 160,
-          align: 'center'
+          align: 'center',
+          showOverflowTooltip: true
         },
         {
           prop: 'operation',
@@ -412,10 +413,13 @@
   :deep(.art-table) {
     .el-table__row .el-table__cell {
       position: relative;
-      border-bottom: 1px dashed var(--el-text-color-placeholder);
+      border-bottom: 0.5px dashed #a8abb254;
     }
     .el-table__body-wrapper .el-table-column--selection > .cell {
       transform: translateY(-140%);
+    }
+    .order-info .order-info_bottom {
+      padding: 0;
     }
   }
 </style>

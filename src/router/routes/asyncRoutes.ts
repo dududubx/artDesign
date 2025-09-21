@@ -421,6 +421,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.order.title',
       icon: '&#xe721;',
+      // keepAlive: true,
       roles: ['R_SUPER', 'R_ADMIN'] // 角色权限，前端控制模式（只有拥有这些角色的用户才能访问）
     }
   },
@@ -440,7 +441,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.GoodsMenu,
         meta: {
           title: '商品列表',
-          keepAlive: true,
+          // keepAlive: true,
           roles: ['R_SUPER', 'R_ADMIN']
         }
       }
@@ -472,7 +473,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.InventoryMenu,
         meta: {
           title: '库存列表',
-          keepAlive: true,
+          // keepAlive: true,
           roles: ['R_SUPER', 'R_ADMIN']
         }
       }

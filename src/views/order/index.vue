@@ -116,6 +116,7 @@
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
   import type { TabsConfig } from '@/types/component'
+  import { useWindowSize } from '@vueuse/core'
 
   enum orderStatus {
     '卖家已发货' = 1,
@@ -163,6 +164,7 @@
       label: '已完成'
     }
   ])
+  const { width } = useWindowSize()
   const activeName = ref('allOrder')
   // 表单搜索初始值
   const searchFormState = ref({
@@ -515,12 +517,14 @@
           prop: 'operation',
           label: '订单操作',
           useSlot: true,
+          minWidth: 120,
           align: 'center'
         },
         {
           prop: 'totalPrice',
           label: '实收款',
           // width: 160,
+          minWidth: 120,
           align: 'center',
           fixed: 'right',
           useSlot: true
@@ -567,14 +571,25 @@
     return 'child-row'
   }
 
-  onMounted(() => {
+  watch(
+    () => width.value,
+    () => {
+      resizeTablePagination()
+    }
+  )
+  const resizeTablePagination = () => {
     nextTick(() => {
+      const pagination = document.querySelector('.pagination')
+      if (width.value <= 500) {
+        pagination?.setAttribute('style', 'transform: translateY(0)')
+        return false
+      }
       const tabBody = document.querySelector('.el-table__body-wrapper .el-scrollbar__wrap')
       const tableInner = document.querySelector('.el-table__inner-wrapper')
       tableInner?.classList.add('el-table_hidden-before')
-      const pagination = document.querySelector('.pagination')
       pagination?.setAttribute('style', 'transform: translateY(-10000px)')
       tabBody?.addEventListener('scroll', () => {
+        console.log('scroll:', tabBody?.scrollHeight, tabBody?.scrollTop + tabBody?.clientHeight)
         if (tabBody?.scrollHeight <= Math.floor(tabBody?.scrollTop + tabBody?.clientHeight + 1)) {
           pagination?.setAttribute('style', 'transform: translateY(0)')
         } else {
@@ -582,6 +597,9 @@
         }
       })
     })
+  }
+  onMounted(() => {
+    resizeTablePagination()
   })
 </script>
 

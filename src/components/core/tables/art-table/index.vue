@@ -293,55 +293,57 @@
 
   // 查找并监听表格头部高度变化
   const observeTableHeader = () => {
-    try {
-      // 清理之前的监听
-      if (resizeObserver) {
-        resizeObserver.disconnect()
-        resizeObserver = null
-      }
-
-      // 如果不需要显示表格头部，直接返回
-      if (!props.showTableHeader) {
-        tableHeaderHeight.value = 0
-        return
-      }
-      if (!props.showTableTabs) {
-        tableTabsHeight.value = 0
-      }
-      //查找表格tabs元素
-      const tableTabs = document.getElementById('art-table-tabs') as HTMLElement
-      if (!tableTabs) {
-        // 如果找不到表格tabs，使用默认高度
-        tableTabsHeight.value = 0
-      } else {
-        tableTabsHeight.value = tableTabs.offsetHeight
-      }
-      // 查找表格头部元素
-      const tableHeader = document.getElementById('art-table-header') as HTMLElement
-      if (!tableHeader) {
-        // 如果找不到表格头部，使用默认高度
-        tableHeaderHeight.value = DEFAULT_TABLE_HEADER_HEIGHT
-        return
-      }
-
-      // 初始化高度
-      tableHeaderHeight.value = tableHeader.offsetHeight
-
-      // 创建 ResizeObserver 监听高度变化
-      resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          if (entry.target === tableHeader) {
-            tableHeaderHeight.value = entry.contentRect.height
-          }
+    requestAnimationFrame(() => {
+      try {
+        // 清理之前的监听
+        if (resizeObserver) {
+          resizeObserver.disconnect()
+          resizeObserver = null
         }
-      })
 
-      resizeObserver.observe(tableHeader)
-    } catch (error) {
-      console.warn('监听表格头部高度失败:', error)
-      // 出错时使用默认高度
-      tableHeaderHeight.value = DEFAULT_TABLE_HEADER_HEIGHT
-    }
+        // 如果不需要显示表格头部，直接返回
+        if (!props.showTableHeader) {
+          tableHeaderHeight.value = 0
+          return
+        }
+        if (!props.showTableTabs) {
+          tableTabsHeight.value = 0
+        }
+        //查找表格tabs元素
+        const tableTabs = document.getElementById('art-table-tabs') as HTMLElement
+        if (!tableTabs) {
+          // 如果找不到表格tabs，使用默认高度
+          tableTabsHeight.value = 0
+        } else {
+          tableTabsHeight.value = tableTabs.offsetHeight
+        }
+        // 查找表格头部元素
+        const tableHeader = document.getElementById('art-table-header') as HTMLElement
+        if (!tableHeader) {
+          // 如果找不到表格头部，使用默认高度
+          tableHeaderHeight.value = DEFAULT_TABLE_HEADER_HEIGHT
+          return
+        }
+
+        // 初始化高度
+        tableHeaderHeight.value = tableHeader.offsetHeight
+
+        // 创建 ResizeObserver 监听高度变化
+        resizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.target === tableHeader) {
+              tableHeaderHeight.value = entry.contentRect.height
+            }
+          }
+        })
+
+        resizeObserver.observe(tableHeader)
+      } catch (error) {
+        console.warn('监听表格头部高度失败:', error)
+        // 出错时使用默认高度
+        tableHeaderHeight.value = DEFAULT_TABLE_HEADER_HEIGHT
+      }
+    })
   }
 
   // 组件挂载后查找表格头部
