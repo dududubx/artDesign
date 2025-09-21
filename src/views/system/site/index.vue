@@ -234,6 +234,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: scroll;
     .el-form-item__content {
       gap: 10px;
       .el-row {
