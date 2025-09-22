@@ -101,21 +101,24 @@
         </div> -->
         <!-- 设置 -->
         <div class="btn-box" v-if="shouldShowSettings" @click="openSetting">
-          <ElPopover :visible="showSettingGuide" placement="bottom-start" :width="190" :offset="0">
+          <div class="btn setting-btn">
+            <i class="iconfont-sys">&#xe6d0;</i>
+          </div>
+          <!-- <ElPopover :visible="showSettingGuide" placement="bottom-start" :width="190" :offset="0">
             <template #reference>
               <div class="btn setting-btn">
                 <i class="iconfont-sys">&#xe6d0;</i>
               </div>
             </template>
-            <!-- <template #default>
+            <template #default>
               <p
                 >{{ $t('topBar.guide.title')
                 }}<span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.theme') }} </span
                 >、 <span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.menu') }} </span
                 >{{ $t('topBar.guide.description') }}
               </p>
-            </template> -->
-          </ElPopover>
+            </template>
+          </ElPopover> -->
         </div>
         <!-- 切换主题 -->
         <!-- <div class="btn-box" v-if="shouldShowThemeToggle" @click="themeAnimation">

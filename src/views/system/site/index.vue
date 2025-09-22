@@ -1,6 +1,7 @@
 <template>
   <div class="user-page art-full-height">
     <ElCard class="art-table-card" shadow="never" style="margin-top: 0">
+      <ArtTabs :panes="tabs" v-model:active-name="activeName" />
       <ElForm
         :model="form"
         class="form"
@@ -9,7 +10,7 @@
         label-width="86px"
         label-position="top"
       >
-        <ElRow justify="center">
+        <ElRow>
           <el-col :span="12">
             <ElFormItem label="店铺名称" prop="realName">
               <el-input v-model="form.realName" show-word-limit maxlength="20" clearable />
@@ -17,7 +18,7 @@
             </ElFormItem>
           </el-col>
         </ElRow>
-        <ElRow justify="center">
+        <ElRow>
           <el-col :span="12">
             <ElFormItem label="店铺ID" prop="id">
               <div class="input-wrap">
@@ -31,7 +32,7 @@
             </ElFormItem>
           </el-col>
         </ElRow>
-        <ElRow justify="center">
+        <ElRow>
           <el-col :span="12">
             <ElFormItem label="店铺标志" prop="id">
               <el-upload
@@ -66,7 +67,7 @@
             </ElFormItem>
           </el-col>
         </ElRow>
-        <ElRow justify="center">
+        <ElRow>
           <el-col :span="12">
             <ElFormItem label="联系地址" prop="realName">
               <ElRow :gutter="10">
@@ -99,7 +100,7 @@
             </ElFormItem>
           </el-col>
         </ElRow>
-        <ElRow justify="center">
+        <ElRow>
           <el-col :span="12">
             <ElFormItem label="店铺联系人手机号" prop="mobile">
               <ElRow :gutter="10">
@@ -138,7 +139,48 @@
   import { ElForm, FormInstance, FormRules } from 'element-plus'
   import type { UploadFile } from 'element-plus'
   import { copyText } from '@/utils'
+  import type { TabsConfig } from '@/types/component'
 
+  //tabs
+  const tabs = ref<TabsConfig[]>([
+    {
+      name: 'allOrder',
+      label: '基本配置'
+    },
+    {
+      name: 'waitPayOrder',
+      label: '用户配置'
+    },
+    {
+      name: 'waitSendOrder',
+      label: '登录注册'
+    },
+    {
+      name: 'waitReceiveOrder',
+      label: '商品配置'
+    },
+    {
+      name: 'receiveOrder',
+      label: '订单配置'
+    },
+    {
+      name: 'sentOrder',
+      label: '系统商户'
+    },
+    {
+      name: 'notReturnOrder',
+      label: '游客管理'
+    },
+    {
+      name: 'returnOrder',
+      label: '分享配置'
+    },
+    {
+      name: 'succeedOrder',
+      label: '接口配置'
+    }
+  ])
+  const activeName = ref('allOrder')
   const form = reactive({
     realName: 'John Snow',
     nikeName: '皮卡丘',
@@ -189,6 +231,13 @@
 </script>
 
 <style lang="scss" scoped>
+  ::-webkit-scrollbar-track {
+    background-color: var(--el-fill-color-blank);
+  }
+  :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
   :deep(.input-wrap) {
     display: flex;
     align-items: center;
