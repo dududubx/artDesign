@@ -145,6 +145,9 @@
     .el-checkbox__inner:after{
         left: 49%;
     }
+    .caret-wrapper{
+        width: 0;
+    }
 }
 
 :deep(.el-table__body tr.hover-row > td.el-table__cell,

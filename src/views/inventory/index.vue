@@ -336,6 +336,7 @@
           prop: 'totalSales',
           label: '累计销量',
           align: 'center',
+          minWidth: 120,
           sortable: true
         },
         {
@@ -349,8 +350,8 @@
           prop: 'createTime',
           label: '创建时间',
           // width: 160,
-          align: 'center',
-          showOverflowTooltip: true
+          minWidth: 150,
+          align: 'center'
         },
         {
           prop: 'operation',
