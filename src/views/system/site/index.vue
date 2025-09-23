@@ -237,6 +237,7 @@
   :deep(.el-card__body) {
     display: flex;
     flex-direction: column;
+    padding-top: 5px;
   }
   :deep(.input-wrap) {
     display: flex;

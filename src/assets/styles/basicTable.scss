@@ -18,7 +18,7 @@
 }
 
 :deep(.art-search-bar) {
-    padding: 0;
+    // padding: 0;
     border: none !important;
     width: 100%;
     // .el-form-item--default {
@@ -141,6 +141,9 @@
     }
     .cell.el-tooltip{
         text-overflow: ellipsis;
+    }
+    .el-checkbox__inner:after{
+        left: 49%;
     }
 }
 

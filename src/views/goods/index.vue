@@ -1,6 +1,19 @@
 <!-- 基础表格 -->
 <template>
   <div class="user-page art-full-height">
+    <ArtSearchBar
+      ref="searchBarRef"
+      v-model="searchFormState"
+      :items="searchItems"
+      :is-expand="false"
+      :span="3.4"
+      :show-expand="true"
+      :show-reset-button="true"
+      :show-search-button="true"
+      :disabled-search-button="false"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
     <!-- 搜索区域 -->
     <ElCard class="art-table-card" shadow="never" style="margin-top: 0">
       <ArtTabs :panes="tabs" v-model:active-name="activeName" />
@@ -13,30 +26,8 @@
         :showRemoveToBottom="true"
         @refresh="handleReset"
       >
-        <template #left>
-          <!-- <ElButton @click="handleBatchDelete" :disabled="selectedRows.length === 0" v-ripple>
-              批量发货 ({{ selectedRows.length }})
-            </ElButton> -->
-          <ArtSearchBar
-            ref="searchBarRef"
-            v-model="searchFormState"
-            :items="searchItems"
-            :is-expand="false"
-            :span="3.4"
-            :show-expand="true"
-            :show-reset-button="true"
-            :show-search-button="true"
-            :disabled-search-button="false"
-            @search="handleSearch"
-            @reset="handleReset"
-          />
-        </template>
         <template #bottom>
           <div class="art-table-header-bottom">
-            <div class="total-data">
-              共查询到<span class="total-data_num">{{ allData.length }}</span
-              >个订单删除
-            </div>
             <div class="add-button">
               <ElButton @click="handleBatchDelete" v-ripple> 创建商品 </ElButton>
             </div>
@@ -221,7 +212,7 @@
       name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '4401438264980299820',
       createTime: '2025-08-15 00:37:48',
-      price: '1',
+      price: 1,
       number: '15',
       status: 1,
       totalPrice: 15,
@@ -241,7 +232,7 @@
       name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '2927503562673969294',
       createTime: '2025-09-12 10:34:12',
-      price: '1',
+      price: 2,
       number: '15',
       status: 0,
       totalPrice: 15,
@@ -263,7 +254,7 @@
       name: 'switch游戏卡带租赁港日版租借NS游戏卡带出租马里奥塞尔达宝可梦',
       orderId: '2927503562673969294' + i,
       createTime: '2025-09-12 10:34:12',
-      price: '1',
+      price: i,
       number: '15',
       status: i % 2,
       totalPrice: 15,
@@ -332,17 +323,20 @@
           prop: 'price',
           label: '价格',
           useSlot: true,
-          align: 'center'
+          align: 'center',
+          sortable: true
         },
         {
           prop: 'number',
           label: '库存',
-          align: 'center'
+          align: 'center',
+          sortable: true
         },
         {
           prop: 'totalSales',
           label: '累计销量',
-          align: 'center'
+          align: 'center',
+          sortable: true
         },
         {
           prop: 'status',
@@ -413,7 +407,7 @@
   :deep(.art-table) {
     .el-table__row .el-table__cell {
       position: relative;
-      border-bottom: 0.5px dashed #a8abb254;
+      border-bottom: 0.5px solid rgba(168, 171, 178, 0.26);
     }
     .el-table__body-wrapper .el-table-column--selection > .cell {
       transform: translateY(-140%);

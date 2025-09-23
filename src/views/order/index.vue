@@ -492,12 +492,14 @@
           prop: 'price',
           label: '单价',
           useSlot: true,
-          align: 'center'
+          align: 'center',
+          sortable: true
         },
         {
           prop: 'number',
           label: '数量',
-          align: 'center'
+          align: 'center',
+          sortable: true
         },
         {
           prop: 'orderType',
