@@ -42,6 +42,7 @@
         :data="data"
         :columns="columns"
         :pagination="pagination"
+        :compoutedHeight="false"
         @selection-change="handleSelectionChange"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
@@ -59,6 +60,12 @@
               <div class="order-info_bottom--info">
                 <div class="order-info_bottom--info--name click_text"> {{ row.name }} </div>
                 <div class="order-info_bottom--info--other"> {{ 'ID' + row.id }} </div>
+                <div class="order-info_bottom--info--tag">
+                  <ElTag effect="plain" type="danger"> 二手产品 </ElTag>
+                  <ElTag effect="plain" type="warning"> 95新 </ElTag>
+                  <ElTag effect="plain" type="primary"> 256g </ElTag>
+                  <ElTag effect="plain" type="success"> 国行 </ElTag>
+                </div>
               </div>
             </div>
           </div>
@@ -97,7 +104,7 @@
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
   import type { TabsConfig } from '@/types/component'
-  import { useWindowSize } from '@vueuse/core'
+  import { useHearderFixed } from '@/composables/useHearderFixed'
 
   enum orderStatus {
     '卖家已发货' = 1,
@@ -145,7 +152,7 @@
       label: '已完成'
     }
   ])
-  const { width } = useWindowSize()
+  const { cardScroll } = useHearderFixed()
   const activeName = ref('allOrder')
   // 表单搜索初始值
   const searchFormState = ref({
@@ -371,35 +378,8 @@
   const handleSearch = () => {}
   const handleReset = () => {}
   const handleBatchDelete = () => {}
-  watch(
-    () => width.value,
-    () => {
-      resizeTablePagination()
-    }
-  )
-  const resizeTablePagination = () => {
-    const pagination = document.querySelector('.pagination')
-    if (width.value <= 500) {
-      pagination?.setAttribute('style', 'transform: translateY(0)')
-      return false
-    }
-    const tabBody = document.querySelector('.el-table__body-wrapper .el-scrollbar__wrap')
-    const tableInner = document.querySelector('.el-table__inner-wrapper')
-    tableInner?.classList.add('el-table_hidden-before')
-    pagination?.setAttribute('style', 'transform: translateY(-10000px)')
-    tabBody?.addEventListener('scroll', () => {
-      console.log('scroll:', tabBody?.scrollHeight, tabBody?.scrollTop + tabBody?.clientHeight)
-      if (tabBody?.scrollHeight <= Math.floor(tabBody?.scrollTop + tabBody?.clientHeight + 1)) {
-        pagination?.setAttribute('style', 'transform: translateY(0)')
-      } else {
-        pagination?.setAttribute('style', 'transform: translateY(-10000px)')
-      }
-    })
-  }
   onMounted(() => {
-    nextTick(() => {
-      resizeTablePagination()
-    })
+    cardScroll()
   })
 </script>
 

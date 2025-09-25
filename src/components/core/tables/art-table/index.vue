@@ -143,6 +143,8 @@
     /** 是否开启 ArtTableHeader，解决表格高度自适应问题 */
     showTableHeader?: boolean
     showTableTabs?: boolean
+    // 是否动态计算表格高度
+    compoutedHeight?: boolean
   }
 
   const props = withDefaults(defineProps<ArtTableProps>(), {
@@ -155,7 +157,8 @@
     emptyHeight: '100%',
     emptyText: '暂无数据',
     showTableHeader: true,
-    showTableTabs: false
+    showTableTabs: false,
+    compoutedHeight: true
   })
 
   const LAYOUT = {
@@ -216,6 +219,9 @@
         paginationHeight.value === 0 ? 0 : paginationHeight.value + PAGINATION_SPACING.value
       offset = headerHeight + paginationOffset + TABLE_HEADER_SPACING
     }
+    if (!props.compoutedHeight) {
+      return { height: 'auto' }
+    }
     return { height: offset === 0 ? '100%' : `calc(100% - ${offset}px)` }
   })
 
@@ -228,6 +234,7 @@
     // 使用传入的高度
     if (props.height) return props.height
     // 默认占满容器高度
+    if (!props.compoutedHeight) return 'auto'
     return '100%'
   })
 
