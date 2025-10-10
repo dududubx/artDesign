@@ -72,10 +72,10 @@
 
   // 用户状态配置
   const USER_STATUS_CONFIG = {
-    '1': { type: 'success' as const, text: '在线' },
+    '1': { type: 'success' as const, text: '启用' },
     '2': { type: 'info' as const, text: '离线' },
     '3': { type: 'warning' as const, text: '异常' },
-    '4': { type: 'danger' as const, text: '注销' }
+    '4': { type: 'danger' as const, text: '禁用' }
   } as const
 
   /**
@@ -138,10 +138,9 @@
         },
         {
           prop: 'userGender',
-          label: '性别',
-          sortable: true,
+          label: '昵称/微信号',
           // checked: false, // 隐藏列
-          formatter: (row) => row.userGender
+          formatter: (row) => row.userPhone
         },
         { prop: 'userPhone', label: '手机号' },
         {
@@ -160,7 +159,7 @@
         {
           prop: 'operation',
           label: '操作',
-          width: 120,
+          width: 140,
           fixed: 'right', // 固定列
           formatter: (row) =>
             h('div', [

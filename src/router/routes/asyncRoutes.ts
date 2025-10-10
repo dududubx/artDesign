@@ -519,7 +519,7 @@ export const asyncRoutes: AppRouteRecord[] = [
       {
         path: 'workerCenter',
         name: 'workerCenter',
-        component: RoutesAlias.Role,
+        component: RoutesAlias.User,
         meta: {
           title: '员工列表',
           keepAlive: true,
@@ -560,17 +560,17 @@ export const asyncRoutes: AppRouteRecord[] = [
       //     roles: ['R_SUPER', 'R_ADMIN']
       //   }
       // },
-      // {
-      //   path: 'role',
-      //   name: 'Role',
-      //   component: RoutesAlias.Role,
-      //   meta: {
-      //     title: 'menus.system.role',
-      //     keepAlive: true,
-      //     showBadge: true,
-      //     roles: ['R_SUPER']
-      //   }
-      // },
+      {
+        path: 'role',
+        name: 'Role',
+        component: RoutesAlias.Role,
+        meta: {
+          title: 'menus.system.role',
+          keepAlive: true,
+          showBadge: true,
+          roles: ['R_SUPER']
+        }
+      },
       {
         path: 'user-center',
         name: 'UserCenter',
