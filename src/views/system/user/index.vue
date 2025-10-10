@@ -131,17 +131,17 @@
               }),
               h('div', {}, [
                 h('p', { class: 'user-name' }, row.userName),
-                h('p', { class: 'email' }, row.userEmail)
+                h('p', { class: 'email' }, row.userPhone)
               ])
             ])
           }
         },
-        {
-          prop: 'userGender',
-          label: '昵称/微信号',
-          // checked: false, // 隐藏列
-          formatter: (row) => row.userPhone
-        },
+        // {
+        //   prop: 'userGender',
+        //   label: '昵称/微信号',
+        //   // checked: false, // 隐藏列
+        //   formatter: (row) => row.userPhone
+        // },
         { prop: 'userPhone', label: '手机号' },
         {
           prop: 'status',
@@ -261,8 +261,8 @@
   .user-page {
     :deep(.user) {
       .avatar {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         margin-left: 0;
         border-radius: 6px;
       }
