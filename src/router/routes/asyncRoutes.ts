@@ -507,6 +507,29 @@ export const asyncRoutes: AppRouteRecord[] = [
     ]
   },
   {
+    name: 'worker',
+    path: '/worker',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: '员工管理',
+      icon: '&#xe721;',
+      roles: ['R_SUPER', 'R_ADMIN'] // 角色权限，前端控制模式（只有拥有这些角色的用户才能访问）
+    },
+    children: [
+      {
+        path: 'workerCenter',
+        name: 'workerCenter',
+        component: RoutesAlias.Role,
+        meta: {
+          title: '员工列表',
+          keepAlive: true,
+          showBadge: true,
+          roles: ['R_SUPER']
+        }
+      }
+    ]
+  },
+  {
     name: 'warehouse',
     path: '/warehouse',
     component: RoutesAlias.NestedMenu21,

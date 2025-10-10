@@ -107,6 +107,7 @@
       // 排除 apiParams 中的属性
       excludeParams: ['daterange'],
       columnsFactory: () => [
+        { type: 'selection', width: 38 },
         {
           prop: 'roleId',
           label: '角色ID',

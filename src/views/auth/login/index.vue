@@ -43,7 +43,7 @@
             @keyup.enter="handleSubmit"
             style="margin-top: 25px"
           >
-            <ElFormItem prop="account">
+            <!-- <ElFormItem prop="account">
               <ElSelect v-model="formData.account" @change="setupAccount" class="account-select">
                 <ElOption
                   v-for="account in accounts"
@@ -54,7 +54,7 @@
                   <span>{{ account.label }}</span>
                 </ElOption>
               </ElSelect>
-            </ElFormItem>
+            </ElFormItem> -->
             <ElFormItem prop="username">
               <ElInput :placeholder="$t('login.placeholder[0]')" v-model.trim="formData.username" />
             </ElFormItem>
@@ -90,7 +90,7 @@
               <ElCheckbox v-model="formData.rememberPassword">{{
                 $t('login.rememberPwd')
               }}</ElCheckbox>
-              <RouterLink :to="RoutesAlias.ForgetPassword">{{ $t('login.forgetPwd') }}</RouterLink>
+              <!-- <RouterLink :to="RoutesAlias.ForgetPassword">{{ $t('login.forgetPwd') }}</RouterLink> -->
             </div>
 
             <div style="margin-top: 30px">
@@ -106,10 +106,10 @@
             </div>
 
             <div class="footer">
-              <p>
+              <!-- <p>
                 {{ $t('login.noAccount') }}
                 <RouterLink :to="RoutesAlias.Register">{{ $t('login.register') }}</RouterLink>
-              </p>
+              </p> -->
             </div>
           </ElForm>
         </div>
