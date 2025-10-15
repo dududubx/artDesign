@@ -101,7 +101,7 @@ declare namespace Api {
       role_code: string
       remark: string
       status: number
-      create_time: string
+      create_time?: string
       sort: number
     }
 

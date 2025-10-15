@@ -82,7 +82,6 @@
     name: '',
     role_code: '',
     remark: '',
-    create_time: '',
     status: 1,
     sort: 0
   })
