@@ -29,6 +29,17 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     component: () => import('@views/auth/register/index.vue'),
     meta: { title: 'menus.register.title', isHideTab: true, noLogin: true, setTheme: true }
   },
+  // {
+  //   path: '/system/user-center',
+  //   name: 'UserCenter',
+  //   component: () => import('@views/system/user-center/index.vue'),
+  //   meta: {
+  //     title: 'menus.system.userCenter',
+  //     isHide: true,
+  //     keepAlive: true,
+  //     isHideTab: true
+  //   }
+  // },
   {
     path: RoutesAlias.ForgetPassword,
     name: 'ForgetPassword',

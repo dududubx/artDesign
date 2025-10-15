@@ -141,14 +141,14 @@
             popper-style="border: 1px solid var(--art-border-dashed-color); border-radius: calc(var(--custom-radius) / 2 + 4px); padding: 5px 16px; 5px 16px;"
           >
             <template #reference>
-              <img class="cover" src="@imgs/user/avatar.webp" alt="avatar" />
+              <img class="cover" :src="userInfo.avatar" alt="avatar" />
             </template>
             <template #default>
               <div class="user-menu-box">
                 <div class="user-head">
-                  <img class="cover" src="@imgs/user/avatar.webp" style="float: left" />
+                  <img class="cover" :src="userInfo.avatar" style="float: left" />
                   <div class="user-wrap">
-                    <span class="name">{{ userInfo.userName }}</span>
+                    <span class="name">{{ userInfo.nickname }}</span>
                     <span class="email">{{ userInfo.email }}</span>
                   </div>
                 </div>
@@ -202,6 +202,7 @@
   import { themeAnimation } from '@/utils/theme/animation'
   import { useCommon } from '@/composables/useCommon'
   import { useHeaderBar } from '@/composables/useHeaderBar'
+  import { fetchLoginOut } from '@/api/auth'
 
   defineOptions({ name: 'ArtHeaderBar' })
 
@@ -312,8 +313,9 @@
         confirmButtonText: t('common.confirm'),
         cancelButtonText: t('common.cancel'),
         customClass: 'login-out-dialog'
-      }).then(() => {
+      }).then(async () => {
         userStore.logOut()
+        await fetchLoginOut()
       })
     }, 200)
   }

@@ -314,25 +314,23 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       }
 
       const response = await apiFn(requestParams)
-
+      console.log(response, 'api response')
       // 检查请求是否被取消
       if (currentController.signal.aborted) {
         throw new Error('请求已取消')
       }
 
       // 使用响应适配器转换为标准格式
-      const standardResponse = responseAdapter(response)
-
+      const standardResponse = responseAdapter(response.data)
       // 处理响应数据
       let tableData = extractTableData(standardResponse)
-
       // 应用数据转换函数
       if (dataTransformer) {
         tableData = dataTransformer(tableData)
       }
-
       // 更新状态
       data.value = tableData
+
       updatePaginationFromResponse(pagination, standardResponse)
 
       // 修复：避免重复设置相同的值，防止响应式循环更新

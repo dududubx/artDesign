@@ -20,7 +20,7 @@
           <div class="user-details">
             <div class="info-item">
               <span class="label">用户名：</span>
-              <span class="value">{{ currentUser.userName || '未登录' }}</span>
+              <span class="value">{{ currentUser.username || '未登录' }}</span>
             </div>
             <div class="info-item">
               <span class="label">角色：</span>
@@ -61,7 +61,7 @@
             v-for="account in accounts"
             :key="account.key"
             class="role-card"
-            :class="{ active: currentUser.userName === account.userName }"
+            :class="{ active: currentUser.username === account.userName }"
           >
             <div class="role-info">
               <div class="role-details">
@@ -75,7 +75,7 @@
             </div>
             <div class="role-actions">
               <ElButton
-                v-if="currentUser.userName !== account.userName"
+                v-if="currentUser.username !== account.userName"
                 type="primary"
                 @click="switchRole(account)"
                 :loading="switching"
@@ -168,20 +168,20 @@
       switching.value = true
 
       // 模拟登录请求
-      const { token, refreshToken } = await fetchLogin({
-        userName: account.userName,
+      const { data } = await fetchLogin({
+        username: account.userName,
         password: account.password
       })
 
       // 验证token
-      if (!token) {
+      if (!data.token) {
         throw new Error('Login failed - no token received')
       }
 
       // 存储token和用户信息
-      userStore.setToken(token, refreshToken)
+      userStore.setToken(data.token)
       const userInfo = await fetchGetUserInfo()
-      userStore.setUserInfo(userInfo)
+      userStore.setUserInfo(userInfo.data)
 
       // 延迟刷新页面以应用新权限
       setTimeout(() => {

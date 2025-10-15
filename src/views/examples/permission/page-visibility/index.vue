@@ -21,7 +21,7 @@
             <div class="success-text">
               <h3>您拥有访问此页面的权限</h3>
               <p>
-                当前用户：<strong>{{ currentUser.userName }}</strong>
+                当前用户：<strong>{{ currentUser.username }}</strong>
               </p>
               <p>
                 用户角色：

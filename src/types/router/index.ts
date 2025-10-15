@@ -45,6 +45,8 @@ export interface RouteMeta extends Record<string | number | symbol, unknown> {
   authMark?: string
   /** 父级路径 */
   parentPath?: string
+  /** 父级菜单ID */
+  parentId?: number | string
 }
 
 // 扩展路由记录
@@ -53,4 +55,22 @@ export interface AppRouteRecord extends Omit<RouteRecordRaw, 'meta' | 'children'
   meta: RouteMeta
   children?: AppRouteRecord[]
   component?: string | (() => Promise<any>)
+  /** 父级菜单ID */
+  parentId?: number | string
+}
+
+export interface menuTypeRoute extends Omit<AppRouteRecord, 'children'> {
+  component_path: string
+  name: string
+  route_path: string
+  icon: string
+  id: number
+  link: string
+  parent_id: number
+  hidden: number
+  keepalive: number
+  perms: string
+  children?: menuTypeRoute[]
+  status: number
+  type: number
 }

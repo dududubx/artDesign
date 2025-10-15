@@ -42,6 +42,7 @@
                 :auto-upload="false"
                 accept="image/png, image/jpeg, image/gif, image/jpg"
                 :class="{ 'hidden-upload': form.logo.length > 0 }"
+                :on-change="changeFile"
               >
                 <el-icon><Plus /></el-icon>
                 <template #file="{ file }">
@@ -140,6 +141,7 @@
   import type { UploadFile } from 'element-plus'
   import { copyText } from '@/utils'
   import type { TabsConfig } from '@/types/component'
+  import { fetchUploadFiles } from '@/api/uploadFiles'
 
   //tabs
   const tabs = ref<TabsConfig[]>([
@@ -189,12 +191,12 @@
     address: '广东省深圳市宝安区西乡街道101栋201',
     sex: '2',
     des: 'Art Design Pro 是一款漂亮的后台管理系统模版.',
-    logo: [
+    logo: <
       {
-        name: 'plant-1.png',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-      }
-    ],
+        name: string
+        url: string
+      }[]
+    >[],
     province: '广东省',
     city: '广州市',
     area: '天河区',
@@ -213,9 +215,22 @@
   const dialogImageUrl = ref('')
   const dialogVisible = ref(false)
   const handleRemove = (file: UploadFile) => {
-    console.log(file)
+    form.logo = []
   }
-
+  const changeFile = (file: UploadFile) => {
+    const formData = new FormData()
+    formData.append('file', file.raw as File)
+    fetchUploadFiles(formData).then((res) => {
+      if (res.code === 200) {
+        form.logo = [
+          {
+            name: file.name as string,
+            url: res.data.url
+          }
+        ]
+      }
+    })
+  }
   const handlePictureCardPreview = (file: UploadFile) => {
     dialogImageUrl.value = file.url!
     dialogVisible.value = true

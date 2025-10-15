@@ -4,7 +4,7 @@
  */
 export const tableConfig = {
   // 列表字段
-  recordFields: ['list', 'data', 'records', 'items', 'result', 'rows'],
+  recordFields: ['lists', 'list', 'data', 'records', 'items', 'result', 'rows'],
   // 总数字段
   totalFields: ['total', 'count'],
   // 当前页码字段

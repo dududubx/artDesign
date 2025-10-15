@@ -9,126 +9,130 @@
     @closed="handleClosed"
   >
     <ElForm ref="formRef" :model="form" :rules="rules" label-width="85px">
-      <ElFormItem label="菜单类型">
-        <ElRadioGroup v-model="menuType" :disabled="disableMenuType">
-          <ElRadioButton value="menu" label="menu">菜单</ElRadioButton>
-          <ElRadioButton value="button" label="button">权限</ElRadioButton>
+      <ElFormItem label="上级菜单" prop="parentId">
+        <ElTreeSelect v-model="form.parentId" :data="menuData" :render-after-expand="false">
+        </ElTreeSelect>
+      </ElFormItem>
+      <ElFormItem label="菜单类型" prop="type">
+        <ElRadioGroup v-model="form.type">
+          <ElRadio :value="1" label="menu">目录</ElRadio>
+          <ElRadio :value="2" label="menu">菜单</ElRadio>
+          <ElRadio :value="3" label="button">按钮</ElRadio>
+          <ElRadio :value="4" label="link">外链</ElRadio>
         </ElRadioGroup>
       </ElFormItem>
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="菜单名称" prop="name">
+            <ElInput v-model="form.name" placeholder="菜单名称" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="路由地址" prop="path">
+            <ElInput v-model="form.path" placeholder="路由地址" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
 
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="权限标识" prop="label">
+            <ElInput v-model="form.label" placeholder="权限标识" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="组件路径" prop="component">
+            <ElInput v-model="form.component" placeholder="组件路径" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="图标" prop="icon">
+            <ArtIconSelector v-model="form.icon" :iconType="iconType" width="100%" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="角色权限" prop="roles">
+            <ElInput v-model="rolesString" placeholder="角色权限，多个用逗号分隔" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="菜单排序" prop="sort">
+            <ElInputNumber
+              v-model="form.sort"
+              style="width: 100%"
+              :min="1"
+              controls-position="right"
+            />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="外部链接" prop="link">
+            <ElInput v-model="form.link" placeholder="外部链接/内嵌地址(https://www.baidu.com)" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
+        <ElCol :span="12">
+          <ElFormItem label="文本徽章" prop="showTextBadge">
+            <ElInput v-model="form.showTextBadge" placeholder="文本徽章内容" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="12">
+          <ElFormItem label="激活路径" prop="activePath">
+            <ElInput v-model="form.activePath" placeholder="详情页激活选中的菜单路径" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+
+      <ElRow :gutter="20">
+        <ElCol :span="6">
+          <ElFormItem label="是否启用" prop="isEnable">
+            <ElSwitch v-model="form.isEnable" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="6">
+          <ElFormItem label="页面缓存" prop="keepAlive">
+            <ElSwitch v-model="form.keepAlive" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="6">
+          <ElFormItem label="隐藏菜单" prop="isHide">
+            <ElSwitch v-model="form.isHide" />
+          </ElFormItem>
+        </ElCol>
+        <!-- <ElCol :span="6">
+          <ElFormItem label="是否内嵌" prop="isIframe">
+            <ElSwitch v-model="form.isIframe" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="6">
+          <ElFormItem label="显示徽章" prop="showBadge">
+            <ElSwitch v-model="form.showBadge" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="6">
+          <ElFormItem label="固定标签" prop="fixedTab">
+            <ElSwitch v-model="form.fixedTab" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="6">
+          <ElFormItem label="标签隐藏" prop="isHideTab">
+            <ElSwitch v-model="form.isHideTab" />
+          </ElFormItem>
+        </ElCol> -->
+      </ElRow>
       <!-- 菜单表单 -->
-      <template v-if="menuType === 'menu'">
-        <ElRow :gutter="20">
-          <ElCol :span="12">
-            <ElFormItem label="菜单名称" prop="name">
-              <ElInput v-model="form.name" placeholder="菜单名称" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="12">
-            <ElFormItem label="路由地址" prop="path">
-              <ElInput v-model="form.path" placeholder="路由地址" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-
-        <ElRow :gutter="20">
-          <ElCol :span="12">
-            <ElFormItem label="权限标识" prop="label">
-              <ElInput v-model="form.label" placeholder="权限标识" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="12">
-            <ElFormItem label="组件路径" prop="component">
-              <ElInput v-model="form.component" placeholder="组件路径" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-
-        <ElRow :gutter="20">
-          <ElCol :span="12">
-            <ElFormItem label="图标" prop="icon">
-              <ArtIconSelector v-model="form.icon" :iconType="iconType" width="100%" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="12">
-            <ElFormItem label="角色权限" prop="roles">
-              <ElInput v-model="rolesString" placeholder="角色权限，多个用逗号分隔" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-
-        <ElRow :gutter="20">
-          <ElCol :span="12">
-            <ElFormItem label="菜单排序" prop="sort">
-              <ElInputNumber
-                v-model="form.sort"
-                style="width: 100%"
-                :min="1"
-                controls-position="right"
-              />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="12">
-            <ElFormItem label="外部链接" prop="link">
-              <ElInput v-model="form.link" placeholder="外部链接/内嵌地址(https://www.baidu.com)" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-
-        <ElRow :gutter="20">
-          <ElCol :span="12">
-            <ElFormItem label="文本徽章" prop="showTextBadge">
-              <ElInput v-model="form.showTextBadge" placeholder="文本徽章内容" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="12">
-            <ElFormItem label="激活路径" prop="activePath">
-              <ElInput v-model="form.activePath" placeholder="详情页激活选中的菜单路径" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-
-        <ElRow :gutter="20">
-          <ElCol :span="6">
-            <ElFormItem label="是否启用" prop="isEnable">
-              <ElSwitch v-model="form.isEnable" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="6">
-            <ElFormItem label="页面缓存" prop="keepAlive">
-              <ElSwitch v-model="form.keepAlive" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="6">
-            <ElFormItem label="隐藏菜单" prop="isHide">
-              <ElSwitch v-model="form.isHide" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="6">
-            <ElFormItem label="是否内嵌" prop="isIframe">
-              <ElSwitch v-model="form.isIframe" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="6">
-            <ElFormItem label="显示徽章" prop="showBadge">
-              <ElSwitch v-model="form.showBadge" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="6">
-            <ElFormItem label="固定标签" prop="fixedTab">
-              <ElSwitch v-model="form.fixedTab" />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="6">
-            <ElFormItem label="标签隐藏" prop="isHideTab">
-              <ElSwitch v-model="form.isHideTab" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-      </template>
+      <template> </template>
 
       <!-- 权限表单 -->
-      <template v-if="menuType === 'button'">
+      <!-- <template v-if="menuType === 'button'">
         <ElRow :gutter="20">
           <ElCol :span="12">
             <ElFormItem label="权限名称" prop="authName">
@@ -153,7 +157,7 @@
             </ElFormItem>
           </ElCol>
         </ElRow>
-      </template>
+      </template> -->
     </ElForm>
 
     <template #footer>
@@ -174,6 +178,8 @@
 
   interface MenuFormData {
     id: number
+    parentId: string
+    type: number
     name: string
     path: string
     label: string
@@ -200,8 +206,9 @@
 
   interface Props {
     visible: boolean
+    menuData: AppRouteRecord[]
     editData?: AppRouteRecord | any
-    type?: 'menu' | 'button'
+    type?: string
     lockType?: boolean
   }
 
@@ -212,19 +219,20 @@
 
   const props = withDefaults(defineProps<Props>(), {
     visible: false,
-    type: 'menu',
+    type: '2',
     lockType: false
   })
 
   const emit = defineEmits<Emits>()
 
   const formRef = ref<FormInstance>()
-  const menuType = ref<'menu' | 'button'>('menu')
   const isEdit = ref(false)
   const iconType = ref(IconTypeEnum.UNICODE)
 
   const form = reactive<MenuFormData>({
     id: 0,
+    parentId: '',
+    type: 2,
     name: '',
     path: '',
     label: '',
@@ -250,6 +258,12 @@
   })
 
   const rules = reactive<FormRules>({
+    type: [
+      {
+        required: true,
+        message: '请选择菜单类型'
+      }
+    ],
     name: [
       { required: true, message: '请输入菜单名称', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
@@ -262,16 +276,8 @@
   })
 
   const dialogTitle = computed(() => {
-    const type = menuType.value === 'menu' ? '菜单' : '权限'
-    return isEdit.value ? `编辑${type}` : `新建${type}`
+    return isEdit.value ? `编辑菜单` : `新建菜单`
   })
-
-  const disableMenuType = computed(() => {
-    if (isEdit.value) return true
-    if (!isEdit.value && menuType.value === 'menu' && props.lockType) return true
-    return false
-  })
-
   const rolesString = computed({
     get: () => form.roles.join(','),
     set: (value: string) => {
@@ -318,34 +324,22 @@
 
     isEdit.value = true
 
-    if (menuType.value === 'menu') {
-      const row = props.editData
-      form.id = row.id || 0
-      form.name = formatMenuTitle(row.meta?.title || '')
-      form.path = row.path || ''
-      form.label = row.name || ''
-      form.component = row.component || ''
-      form.icon = row.meta?.icon || ''
-      form.sort = row.meta?.sort || 1
-      form.isMenu = row.meta?.isMenu ?? true
-      form.keepAlive = row.meta?.keepAlive ?? false
-      form.isHide = row.meta?.isHide ?? false
-      form.isHideTab = row.meta?.isHideTab ?? false
-      form.isEnable = row.meta?.isEnable ?? true
-      form.link = row.meta?.link || ''
-      form.isIframe = row.meta?.isIframe ?? false
-      form.showBadge = row.meta?.showBadge ?? false
-      form.showTextBadge = row.meta?.showTextBadge || ''
-      form.fixedTab = row.meta?.fixedTab ?? false
-      form.activePath = row.meta?.activePath || ''
-      form.roles = row.meta?.roles || []
-    } else {
-      const row = props.editData
-      form.authName = row.title || ''
-      form.authLabel = row.authMark || ''
-      form.authIcon = row.icon || ''
-      form.authSort = row.sort || 1
-    }
+    const row = props.editData
+    form.type = row.type || 2
+    form.id = row.id || 0
+    form.parentId = row.parent_id || ''
+    form.name = formatMenuTitle(row.name || '')
+    form.path = row.route_path || ''
+    form.label = row.perms || ''
+    form.component = row.component_path || ''
+    form.icon = row.icon || ''
+    form.sort = row.sort || 1
+    form.keepAlive = row.keepalive == 1 ? true : false
+    form.isHide = row.hidden == 1 ? true : false
+    form.isEnable = row.status == 1 ? true : false
+    form.link = row.link || ''
+    form.activePath = row.activePath || ''
+    form.roles = row.roles || []
   }
 
   const handleSubmit = async () => {
@@ -377,22 +371,11 @@
     () => props.visible,
     (newVal) => {
       if (newVal) {
-        menuType.value = props.type
         nextTick(() => {
           if (props.editData) {
             loadFormData()
           }
         })
-      }
-    }
-  )
-
-  // 监听 type 变化
-  watch(
-    () => props.type,
-    (newType) => {
-      if (props.visible) {
-        menuType.value = newType
       }
     }
   )

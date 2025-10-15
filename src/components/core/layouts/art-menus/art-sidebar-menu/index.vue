@@ -188,7 +188,6 @@
     const currentMenu = allMenus.find((menu) => menu.path === currentTopPath)
     return currentMenu?.children ?? []
   })
-
   /**
    * 检查是否为移动端屏幕
    */

@@ -19,7 +19,7 @@ declare namespace Api {
     }
 
     /** 通用搜索参数 */
-    type CommonSearchParams = Pick<PaginationParams, 'current' | 'size'>
+    type CommonSearchParams = Pick<PaginationParams, 'current' | 'size' | 'pageIndex' | 'pageSize'>
 
     /** 分页响应基础结构 */
     interface PaginatedResponse<T = any> {
@@ -37,24 +37,26 @@ declare namespace Api {
   namespace Auth {
     /** 登录参数 */
     interface LoginParams {
-      userName: string
+      username: string
       password: string
     }
 
     /** 登录响应 */
     interface LoginResponse {
-      token: string
-      refreshToken: string
+      data: {
+        token: string
+      }
     }
 
     /** 用户信息 */
     interface UserInfo {
       buttons: string[]
       roles: string[]
-      userId: number
-      userName: string
+      userid: number
+      username: string
       email: string
       avatar?: string
+      nickname: string
     }
   }
 
@@ -94,17 +96,18 @@ declare namespace Api {
 
     /** 角色列表项 */
     interface RoleListItem {
-      roleId: number
-      roleName: string
-      roleCode: string
-      description: string
-      enabled: boolean
-      createTime: string
+      id?: number
+      name: string
+      role_code: string
+      remark: string
+      status: number
+      create_time: string
+      sort: number
     }
 
     /** 角色搜索参数 */
     type RoleSearchParams = Partial<
-      Pick<RoleListItem, 'roleId' | 'roleName' | 'roleCode' | 'description' | 'enabled'> &
+      Pick<RoleListItem, 'id' | 'name' | 'role_code' | 'remark' | 'status' | 'sort'> &
         Api.Common.CommonSearchParams
     >
   }

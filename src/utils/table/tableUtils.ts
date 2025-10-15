@@ -75,7 +75,6 @@ function extractPagination(
 export const defaultResponseAdapter = <T>(response: unknown): ApiResponse<T> => {
   // 定义支持的字段
   const recordFields = tableConfig.recordFields
-
   if (!response) {
     return { records: [], total: 0 }
   }

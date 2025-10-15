@@ -55,12 +55,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ElMessage, ElMessageBox, ElTag } from 'element-plus'
-  import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
-  import { Setting, Edit, Delete } from '@element-plus/icons-vue'
+  import { ElButton, ElMessage, ElMessageBox, ElTag } from 'element-plus'
+  import { Position, Edit, Delete } from '@element-plus/icons-vue'
   import { useTable } from '@/composables/useTable'
-  import { fetchGetRoleList } from '@/api/system-manage'
-  import ArtButtonMore from '@/components/core/forms/art-button-more/index.vue'
+  import { fetchGetRoleList, fetchDeleteRole } from '@/api/system-manage'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
@@ -78,7 +76,7 @@
     daterange: undefined
   })
 
-  const showSearchBar = ref(false)
+  const showSearchBar = ref(true)
 
   const dialogVisible = ref(false)
   const permissionDialog = ref(false)
@@ -101,42 +99,44 @@
     core: {
       apiFn: fetchGetRoleList,
       apiParams: {
-        current: 1,
-        size: 20
+        pageIndex: 1,
+        pageSize: 20
+      },
+      paginationKey: {
+        current: 'pageIndex',
+        size: 'pageSize'
       },
       // 排除 apiParams 中的属性
       excludeParams: ['daterange'],
       columnsFactory: () => [
         { type: 'selection', width: 38 },
         {
-          prop: 'roleId',
-          label: '角色ID',
-          width: 100
+          prop: 'id',
+          label: '角色ID'
         },
         {
-          prop: 'roleName',
+          prop: 'name',
           label: '角色名称',
           minWidth: 120
         },
         {
-          prop: 'roleCode',
+          prop: 'role_code',
           label: '角色编码',
           minWidth: 120
         },
         {
-          prop: 'description',
+          prop: 'remark',
           label: '角色描述',
-          minWidth: 150,
           showOverflowTooltip: true
         },
         {
-          prop: 'enabled',
+          prop: 'status',
           label: '角色状态',
-          width: 100,
           formatter: (row) => {
-            const statusConfig = row.enabled
-              ? { type: 'success', text: '启用' }
-              : { type: 'warning', text: '禁用' }
+            const statusConfig =
+              row.status == 1
+                ? { type: 'success', text: '启用' }
+                : { type: 'warning', text: '禁用' }
             return h(
               ElTag,
               { type: statusConfig.type as 'success' | 'warning' },
@@ -145,40 +145,61 @@
           }
         },
         {
-          prop: 'createTime',
+          prop: 'create_time',
           label: '创建日期',
-          width: 180,
           sortable: true
         },
         {
           prop: 'operation',
           label: '操作',
-          width: 80,
+          width: 230,
+          align: 'center',
           fixed: 'right',
           formatter: (row) =>
-            h('div', [
-              h(ArtButtonMore, {
-                list: [
+            h(
+              'div',
+              {
+                class: 'art-table-operation'
+              },
+              [
+                h(
+                  ElButton,
                   {
-                    key: 'permission',
-                    label: '菜单权限',
-                    icon: Setting
+                    text: true,
+                    type: 'primary',
+                    icon: Position,
+                    onClick: () => buttonMoreClick('permission', row)
                   },
                   {
-                    key: 'edit',
-                    label: '编辑角色',
-                    icon: Edit
-                  },
-                  {
-                    key: 'delete',
-                    label: '删除角色',
-                    icon: Delete,
-                    color: '#f56c6c'
+                    default: () => '分配权限'
                   }
-                ],
-                onClick: (item: ButtonMoreItem) => buttonMoreClick(item, row)
-              })
-            ])
+                ),
+                h(
+                  ElButton,
+                  {
+                    text: true,
+                    type: 'primary',
+                    icon: Edit,
+                    onClick: () => buttonMoreClick('edit', row)
+                  },
+                  {
+                    default: () => '编辑'
+                  }
+                ),
+                h(
+                  ElButton,
+                  {
+                    text: true,
+                    type: 'danger',
+                    icon: Delete,
+                    onClick: () => buttonMoreClick('delete', row)
+                  },
+                  {
+                    default: () => '删除'
+                  }
+                )
+              ]
+            )
         }
       ]
     }
@@ -206,8 +227,8 @@
     getData()
   }
 
-  const buttonMoreClick = (item: ButtonMoreItem, row: RoleListItem) => {
-    switch (item.key) {
+  const buttonMoreClick = (item: string, row: RoleListItem) => {
+    switch (item) {
       case 'permission':
         showPermissionDialog(row)
         break
@@ -226,13 +247,16 @@
   }
 
   const deleteRole = (row: RoleListItem) => {
-    ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？此操作不可恢复！`, '删除确认', {
+    ElMessageBox.confirm(`确定删除角色"${row.name}"吗？此操作不可恢复！`, '删除确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
-      .then(() => {
+      .then(async () => {
         // TODO: 调用删除接口
+        await fetchDeleteRole({
+          id: row!.id || ''
+        })
         ElMessage.success('删除成功')
         refreshData()
       })
@@ -245,5 +269,13 @@
 <style lang="scss" scoped>
   .role-page {
     padding-bottom: 15px;
+  }
+  :deep(.art-table-operation) {
+    display: flex;
+    align-items: center;
+    .el-button--danger.is-text,
+    .el-button--primary.is-text {
+      padding: 0 !important;
+    }
   }
 </style>

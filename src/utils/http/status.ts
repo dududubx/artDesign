@@ -5,6 +5,7 @@ export enum ApiStatus {
   success = 200, // 成功
   error = 400, // 错误
   unauthorized = 401, // 未授权
+  otherPlaceLogin = -2, // 其他地方登录
   forbidden = 403, // 禁止访问
   notFound = 404, // 未找到
   methodNotAllowed = 405, // 方法不允许

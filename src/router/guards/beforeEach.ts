@@ -113,7 +113,6 @@ async function handleRouteGuard(
     next()
     return
   }
-
   // 尝试刷新路由重新注册
   if (userStore.isLogin && !isRouteRegistered.value) {
     await handleDynamicRoutes(to, from, next, router)
@@ -160,7 +159,7 @@ async function handleDynamicRoutes(
     if (isRefresh || !userStore.info || Object.keys(userStore.info).length === 0) {
       try {
         const data = await fetchGetUserInfo()
-        userStore.setUserInfo(data)
+        userStore.setUserInfo(data.data)
       } catch (error) {
         console.error('获取用户信息失败', error)
       }

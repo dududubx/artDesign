@@ -7,17 +7,20 @@
     @close="handleClose"
   >
     <ElForm ref="formRef" :model="form" :rules="rules" label-width="120px">
-      <ElFormItem label="角色名称" prop="roleName">
-        <ElInput v-model="form.roleName" />
+      <ElFormItem label="角色名称" prop="name">
+        <ElInput v-model="form.name" />
       </ElFormItem>
-      <ElFormItem label="角色编码" prop="roleCode">
-        <ElInput v-model="form.roleCode" />
+      <ElFormItem label="角色编码" prop="role_code">
+        <ElInput v-model="form.role_code" />
       </ElFormItem>
-      <ElFormItem label="描述" prop="description">
-        <ElInput v-model="form.description" type="textarea" :rows="3" />
+      <ElFormItem label="角色排序" prop="sort">
+        <ElInputNumber v-model.number="form.sort" controls-position="right" />
       </ElFormItem>
-      <ElFormItem label="启用">
-        <ElSwitch v-model="form.enabled" />
+      <ElFormItem label="角色描述" prop="remark">
+        <ElInput v-model="form.remark" type="textarea" :rows="3" />
+      </ElFormItem>
+      <ElFormItem label="角色状态">
+        <ElSwitch v-model="form.status" :active-value="1" :inactive-value="2" />
       </ElFormItem>
     </ElForm>
     <template #footer>
@@ -32,6 +35,7 @@
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchAddRole, fetchEditRole } from '@/api/system-manage'
 
   type RoleListItem = Api.SystemManage.RoleListItem
 
@@ -62,24 +66,25 @@
   const formRef = ref<FormInstance>()
 
   const rules = reactive<FormRules>({
-    roleName: [
+    name: [
       { required: true, message: '请输入角色名称', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
     ],
-    roleCode: [
+    role_code: [
       { required: true, message: '请输入角色编码', trigger: 'blur' },
       { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
     ],
-    description: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
+    remark: [{ required: true, message: '请输入角色描述', trigger: 'blur' }],
+    sort: [{ required: true, message: '请输入排序号', trigger: 'blur' }]
   })
 
   const form = reactive<RoleListItem>({
-    roleId: 0,
-    roleName: '',
-    roleCode: '',
-    description: '',
-    createTime: '',
-    enabled: true
+    name: '',
+    role_code: '',
+    remark: '',
+    create_time: '',
+    status: 1,
+    sort: 0
   })
 
   // 监听弹窗打开，初始化表单数据
@@ -107,21 +112,20 @@
   const initForm = () => {
     if (props.dialogType === 'edit' && props.roleData) {
       Object.assign(form, {
-        roleId: props.roleData.roleId,
-        roleName: props.roleData.roleName,
-        roleCode: props.roleData.roleCode,
-        description: props.roleData.description,
-        createTime: props.roleData.createTime,
-        enabled: props.roleData.enabled
+        id: props.roleData.id,
+        name: props.roleData.name,
+        role_code: props.roleData.role_code,
+        remark: props.roleData.remark,
+        status: props.roleData.status,
+        sort: props.roleData.sort
       })
     } else {
       Object.assign(form, {
-        roleId: 0,
-        roleName: '',
-        roleCode: '',
-        description: '',
-        createTime: '',
-        enabled: true
+        name: '',
+        role_code: '',
+        remark: '',
+        status: 1,
+        sort: 0
       })
     }
   }
@@ -138,6 +142,11 @@
       await formRef.value.validate()
       // TODO: 调用新增/编辑接口
       const message = props.dialogType === 'add' ? '新增成功' : '修改成功'
+      if (props.dialogType === 'add') {
+        await fetchAddRole(form)
+      } else {
+        await fetchEditRole(form)
+      }
       ElMessage.success(message)
       emit('success')
       handleClose()

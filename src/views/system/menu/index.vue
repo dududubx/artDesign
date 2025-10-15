@@ -22,24 +22,42 @@
           <ElButton @click="toggleExpand" v-ripple>
             {{ isExpanded ? '收起' : '展开' }}
           </ElButton>
-          <ElButton v-if="hasAuth('add')" @click="handleAddMenu" v-ripple> 添加菜单 </ElButton>
+          <!-- <ElButton v-if="hasAuth('add')" @click="handleAddMenu" v-ripple> 添加菜单 </ElButton> -->
         </template>
       </ArtTableHeader>
 
       <ArtTable
         ref="tableRef"
-        rowKey="path"
+        rowKey="id"
         :loading="loading"
         :columns="columns"
-        :data="filteredTableData"
+        :data="data"
         :stripe="false"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         :default-expand-all="false"
-      />
+      >
+        <!-- 操作列 -->
+        <template #operation="{ row }">
+          <div class="status-one">
+            <div class="status-btn">
+              <el-button type="primary" :icon="Plus" text @click="handleAddAuth(row)"
+                >新增</el-button
+              >
+              <el-button type="primary" :icon="Edit" text @click="handleEditMenu(row)"
+                >编辑</el-button
+              >
+              <el-button type="danger" :icon="Delete" text @click="handleDeleteMenu()"
+                >删除</el-button
+              >
+            </div>
+          </div>
+        </template>
+      </ArtTable>
 
       <!-- 菜单弹窗 -->
       <MenuDialog
         v-model:visible="dialogVisible"
+        :menu-data="menuTreeData"
         :type="dialogType"
         :editData="editData"
         :lockType="lockMenuType"
@@ -54,25 +72,54 @@
   import { ElMessage, ElMessageBox, ElTag } from 'element-plus'
   import { formatMenuTitle } from '@/router/utils/utils'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { useTableColumns } from '@/composables/useTableColumns'
-  import type { AppRouteRecord } from '@/types/router'
+  import { useTable } from '@/composables/useTable'
+  import type { AppRouteRecord, menuTypeRoute } from '@/types/router'
   import { useAuth } from '@/composables/useAuth'
   import MenuDialog from './modules/menu-dialog.vue'
+  import { fetchGetSystemMenu } from '@/api/menu'
+  import { Delete, Edit, Plus } from '@element-plus/icons-vue'
 
   defineOptions({ name: 'Menus' })
 
+  type menuFormData = AppRouteRecord & {
+    id: number
+    parentId: string
+    name: string
+  }
+  enum menuType {
+    '目录' = 1,
+    '菜单' = 2,
+    '按钮' = 3,
+    '内嵌' = 4
+  }
   const { hasAuth } = useAuth()
   const { menuList } = storeToRefs(useMenuStore())
+  const menuTreeData = ref<menuFormData[]>([])
+  const expenMenuData = (items: AppRouteRecord[]): menuFormData[] => {
+    const returnData = items.map((item) => {
+      const newItem = {
+        ...item,
+        label: formatMenuTitle(item.meta?.title || ''),
+        value: item.id
+      }
+      if (item.children?.length) {
+        newItem.children = expenMenuData(item.children)
+      }
+      return newItem
+    }) as menuFormData[]
+    return returnData
+  }
 
-  // 状态管理
-  const loading = ref(false)
+  menuTreeData.value = expenMenuData(menuList.value)
+  // 状态管
+  // const loading = ref(false)
   const isExpanded = ref(false)
   const tableRef = ref()
 
   // 弹窗相关
   const dialogVisible = ref(false)
-  const dialogType = ref<'menu' | 'button'>('menu')
-  const editData = ref<AppRouteRecord | any>(null)
+  const dialogType = ref<string>('2')
+  const editData = ref<menuTypeRoute | any>(null)
   const lockMenuType = ref(false)
 
   // 搜索相关
@@ -100,135 +147,128 @@
   ])
 
   // 菜单类型工具函数
-  const getMenuTypeTag = (row: AppRouteRecord) => {
-    if (row.meta?.isAuthButton) return 'danger'
-    if (row.children?.length) return 'info'
-    if (row.meta?.link && row.meta?.isIframe) return 'success'
-    if (row.path) return 'primary'
-    if (row.meta?.link) return 'warning'
+  const getMenuTypeTag = (row: menuTypeRoute) => {
+    if (row.type == 3) return 'danger'
+    if (row.type == 1) return 'info'
+    if (row.type == 2) return 'primary'
+    if (row.type == 2) return 'warning'
     return 'info'
   }
 
-  const getMenuTypeText = (row: AppRouteRecord) => {
-    if (row.meta?.isAuthButton) return '按钮'
-    if (row.children?.length) return '目录'
-    if (row.meta?.link && row.meta?.isIframe) return '内嵌'
-    if (row.path) return '菜单'
-    if (row.meta?.link) return '外链'
+  const getMenuTypeText = (row: menuTypeRoute) => {
+    if (menuType[row.type]) {
+      return menuType[row.type]
+    }
     return '未知'
   }
+  const { columns, columnChecks, loading, refreshData, data } = useTable({
+    core: {
+      apiFn: fetchGetSystemMenu,
+      apiParams: {
+        current: 1,
+        size: 20,
+        userName: '',
+        userPhone: '',
+        userEmail: ''
+      },
+      columnsFactory: () => [
+        {
+          prop: 'name',
+          label: '菜单名称',
+          minWidth: 120
+        },
+        {
+          prop: 'type',
+          label: '菜单类型',
+          formatter: (row: menuTypeRoute) => {
+            return h(ElTag, { type: getMenuTypeTag(row) }, () => getMenuTypeText(row))
+          }
+        },
+        {
+          prop: 'path',
+          label: '路由',
+          formatter: (row: menuTypeRoute) => {
+            return row.route_path || row.link || ''
+          }
+        },
+        {
+          prop: 'meta.authList',
+          label: '权限标识',
+          formatter: (row: menuTypeRoute) => {
+            const authButtons = row.children?.filter((child) => child.type == 3) || []
+            if (!authButtons?.length) {
+              return ''
+            }
+            return `${authButtons?.length} 个权限标识`
+          }
+        },
+        {
+          prop: 'date',
+          label: '编辑时间',
+          formatter: () => '2022-3-12 12:00:00'
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          formatter: () => h(ElTag, { type: 'success' }, () => '启用')
+        },
+        {
+          prop: 'operation',
+          label: '操作',
+          width: 220,
+          align: 'center',
+          useSlot: true,
+          formatter: (row: menuTypeRoute) => {
+            const buttonStyle = { style: 'text-align: right' }
 
-  // 表格列配置
-  const { columnChecks, columns } = useTableColumns(() => [
-    {
-      prop: 'meta.title',
-      label: '菜单名称',
-      minWidth: 120,
-      formatter: (row: AppRouteRecord) => formatMenuTitle(row.meta?.title)
-    },
-    {
-      prop: 'type',
-      label: '菜单类型',
-      formatter: (row: AppRouteRecord) => {
-        return h(ElTag, { type: getMenuTypeTag(row) }, () => getMenuTypeText(row))
-      }
-    },
-    {
-      prop: 'path',
-      label: '路由',
-      formatter: (row: AppRouteRecord) => {
-        if (row.meta?.isAuthButton) return ''
-        return row.meta?.link || row.path || ''
-      }
-    },
-    {
-      prop: 'meta.authList',
-      label: '权限标识',
-      formatter: (row: AppRouteRecord) => {
-        if (row.meta?.isAuthButton) {
-          return row.meta?.authMark || ''
+            // if (row.meta?.isAuthButton) {
+            //   return h('div', buttonStyle, [
+            //     h(ArtButtonTable, {
+            //       type: 'edit',
+            //       onClick: () => handleEditAuth(row)
+            //     }),
+            //     h(ArtButtonTable, {
+            //       type: 'delete',
+            //       onClick: () => handleDeleteAuth()
+            //     })
+            //   ])
+            // }
+
+            return h('div', buttonStyle, [
+              h(ArtButtonTable, {
+                type: 'add',
+                onClick: () => handleAddAuth(row),
+                title: '新增菜单'
+              }),
+              h(ArtButtonTable, {
+                type: 'edit',
+                onClick: () => handleEditMenu(row)
+              }),
+              h(ArtButtonTable, {
+                type: 'delete',
+                onClick: () => handleDeleteMenu()
+              })
+            ])
+          }
         }
-        if (!row.meta?.authList?.length) return ''
-        return `${row.meta.authList.length} 个权限标识`
-      }
-    },
-    {
-      prop: 'date',
-      label: '编辑时间',
-      formatter: () => '2022-3-12 12:00:00'
-    },
-    {
-      prop: 'status',
-      label: '状态',
-      formatter: () => h(ElTag, { type: 'success' }, () => '启用')
-    },
-    {
-      prop: 'operation',
-      label: '操作',
-      width: 180,
-      align: 'right',
-      formatter: (row: AppRouteRecord) => {
-        const buttonStyle = { style: 'text-align: right' }
-
-        if (row.meta?.isAuthButton) {
-          return h('div', buttonStyle, [
-            h(ArtButtonTable, {
-              type: 'edit',
-              onClick: () => handleEditAuth(row)
-            }),
-            h(ArtButtonTable, {
-              type: 'delete',
-              onClick: () => handleDeleteAuth()
-            })
-          ])
-        }
-
-        return h('div', buttonStyle, [
-          h(ArtButtonTable, {
-            type: 'add',
-            onClick: () => handleAddAuth(),
-            title: '新增权限'
-          }),
-          h(ArtButtonTable, {
-            type: 'edit',
-            onClick: () => handleEditMenu(row)
-          }),
-          h(ArtButtonTable, {
-            type: 'delete',
-            onClick: () => handleDeleteMenu()
-          })
-        ])
-      }
+      ]
     }
-  ])
-
-  // 数据相关
-  const tableData = ref<AppRouteRecord[]>([])
-
+  })
   // 事件处理
   const handleReset = () => {
     Object.assign(formFilters, { ...initialSearchState })
     Object.assign(appliedFilters, { ...initialSearchState })
-    getTableData()
+    refreshData()
   }
 
   const handleSearch = () => {
     Object.assign(appliedFilters, { ...formFilters })
-    getTableData()
+    refreshData()
   }
 
   const handleRefresh = () => {
-    getTableData()
+    refreshData()
   }
-
-  const getTableData = () => {
-    loading.value = true
-    setTimeout(() => {
-      tableData.value = menuList.value
-      loading.value = false
-    }, 500)
-  }
-
   // 工具函数
   const deepClone = (obj: any): any => {
     if (obj === null || typeof obj !== 'object') return obj
@@ -306,34 +346,36 @@
 
   // 过滤后的表格数据
   const filteredTableData = computed(() => {
-    const searchedData = searchMenu(tableData.value)
+    const searchedData = searchMenu(data.value)
     return convertAuthListToChildren(searchedData)
   })
 
   // 弹窗操作处理
   const handleAddMenu = () => {
-    dialogType.value = 'menu'
+    dialogType.value = '2'
     editData.value = null
     lockMenuType.value = true
     dialogVisible.value = true
   }
 
-  const handleAddAuth = () => {
-    dialogType.value = 'menu'
-    editData.value = null
+  const handleAddAuth = (row: menuTypeRoute) => {
+    dialogType.value = '2'
+    editData.value = {
+      parent_id: row.parent_id
+    }
     lockMenuType.value = false
     dialogVisible.value = true
   }
 
   const handleEditMenu = (row: AppRouteRecord) => {
-    dialogType.value = 'menu'
+    dialogType.value = '2'
     editData.value = row
     lockMenuType.value = true
     dialogVisible.value = true
   }
 
   const handleEditAuth = (row: AppRouteRecord) => {
-    dialogType.value = 'button'
+    dialogType.value = '2'
     editData.value = {
       title: row.meta?.title,
       authMark: row.meta?.authMark
@@ -343,9 +385,8 @@
   }
 
   const handleSubmit = (formData: any) => {
-    console.log('提交数据:', formData)
     // 这里可以调用API保存数据
-    getTableData()
+    refreshData()
   }
 
   const handleDeleteMenu = async () => {
@@ -356,7 +397,7 @@
         type: 'warning'
       })
       ElMessage.success('删除成功')
-      getTableData()
+      refreshData()
     } catch (error) {
       if (error !== 'cancel') {
         ElMessage.error('删除失败')
@@ -372,7 +413,7 @@
         type: 'warning'
       })
       ElMessage.success('删除成功')
-      getTableData()
+      refreshData()
     } catch (error) {
       if (error !== 'cancel') {
         ElMessage.error('删除失败')
@@ -400,7 +441,7 @@
 
   // 生命周期
   onMounted(() => {
-    getTableData()
+    // getTableData()
   })
 </script>
 
@@ -418,6 +459,14 @@
       height: 30px !important;
       padding: 0 10px !important;
       font-size: 12px !important;
+    }
+    :deep(.status-btn) {
+      display: flex;
+      align-items: center;
+      .el-button--danger.is-text,
+      .el-button--primary.is-text {
+        padding: 0 !important;
+      }
     }
   }
 </style>

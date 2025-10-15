@@ -106,7 +106,7 @@ export const useUserStore = defineStore(
      * 退出登录
      * 清空所有用户相关状态并跳转到登录页
      */
-    const logOut = () => {
+    const logOut = async () => {
       // 清空用户信息
       info.value = {}
       // 重置登录状态
