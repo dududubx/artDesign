@@ -28,6 +28,7 @@ export const configureNProgress = () => {
  */
 export const setPageTitle = (to: RouteLocationNormalized): void => {
   const { title } = to.meta
+  console.log(title, 'setPageTitle')
   if (title) {
     setTimeout(() => {
       document.title = `${formatMenuTitle(String(title))} - ${AppConfig.systemInfo.name}`

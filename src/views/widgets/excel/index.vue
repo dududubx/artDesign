@@ -34,13 +34,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ElMessage } from 'element-plus'
   interface TableData {
     name: string
     age: number
     city: string
   }
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const handleImportSuccess = (data: any[]) => {
     // 将导入的数据转换为正确的格式
     const formattedData = data.map((item) => ({
@@ -102,7 +101,10 @@
   }
 
   const handleExportError = (error: Error) => {
-    ElMessage.error(`导出失败: ${error.message}`)
+    $message({
+      type: 'error',
+      message: `导出失败: ${error.message}`
+    })
   }
 
   const handleProgress = (progress: number) => {

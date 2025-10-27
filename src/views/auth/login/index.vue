@@ -121,7 +121,7 @@
 <script setup lang="ts">
   import AppConfig from '@/config'
   import { RoutesAlias } from '@/router/routesAlias'
-  import { ElNotification, ElMessage } from 'element-plus'
+  import { ElNotification } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
   import { getCssVar } from '@/utils/ui'
   import { languageOptions } from '@/locales'
@@ -130,9 +130,10 @@
   import { HttpError } from '@/utils/http/error'
   import { themeAnimation } from '@/utils/theme/animation'
   import { fetchLogin, fetchGetUserInfo } from '@/api/auth'
+  import { ComponentPublicInstance } from 'vue'
 
   defineOptions({ name: 'Login' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const { t } = useI18n()
   import { useSettingStore } from '@/store/modules/setting'
   import type { FormInstance, FormRules } from 'element-plus'
@@ -255,7 +256,10 @@
         // console.log(error.code)
       } else {
         // 处理非 HttpError
-        ElMessage.error('登录失败，请稍后重试')
+        $message({
+          type: 'error',
+          message: '登录失败，请稍后重试'
+        })
         console.error('[Login] Unexpected error:', error)
       }
     } finally {

@@ -474,10 +474,7 @@
       apiFn: fetchGetUserList,
       apiParams: {
         current: 1,
-        size: 20,
-        userName: '',
-        userPhone: '',
-        userEmail: ''
+        size: 20
       },
       columnsFactory: () => [
         { type: 'selection', width: 38 },

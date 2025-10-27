@@ -27,7 +27,10 @@ export const setWorktab = (to: RouteLocationNormalized): void => {
           query
         })
       }
-    } else if (useSettingStore().showWorkTab || path === useCommon().homePath.value) {
+    } else if (
+      useSettingStore().showWorkTab ||
+      (path === useCommon().homePath.value && !meta.isHideTab)
+    ) {
       worktabStore.openTab({
         title: meta.title as string,
         path,

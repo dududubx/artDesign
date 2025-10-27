@@ -6,6 +6,18 @@
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
+      <ElFormItem label="头像" prop="avatar">
+        <el-upload
+          class="avatar-uploader"
+          action="#"
+          :show-file-list="false"
+          :on-change="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+        >
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+        </el-upload>
+      </ElFormItem>
       <ElFormItem label="用户名" prop="username">
         <ElInput v-model="formData.username" />
       </ElFormItem>
@@ -41,14 +53,15 @@
 <script setup lang="ts">
   import { ROLE_LIST_DATA } from '@/mock/temp/formData'
   import type { FormInstance, FormRules } from 'element-plus'
-  import { ElMessage } from 'element-plus'
+  import { Plus } from '@element-plus/icons-vue'
+  import type { UploadProps } from 'element-plus'
 
   interface Props {
     visible: boolean
     type: string
     userData?: any
   }
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   interface Emits {
     (e: 'update:visible', value: boolean): void
     (e: 'submit'): void
@@ -99,11 +112,28 @@
     const row = props.userData
 
     Object.assign(formData, {
+      avatar: isEdit ? row.avatar || '' : '',
       username: isEdit ? row.userName || '' : '',
       phone: isEdit ? row.userPhone || '' : '',
       gender: isEdit ? row.userGender || '男' : '男',
       role: isEdit ? (Array.isArray(row.userRoles) ? row.userRoles : []) : []
     })
+  }
+  const imageUrl = ref('')
+
+  const handleAvatarSuccess: UploadProps['onChange'] = (uploadFile) => {
+    imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+  }
+
+  const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    // if (rawFile.type !== 'image/jpeg') {
+    //   ElMessage.error('Avatar picture must be JPG format!')
+    //   return false
+    // } else if (rawFile.size / 1024 / 1024 > 2) {
+    //   ElMessage.error('Avatar picture size can not exceed 2MB!')
+    //   return false
+    // }
+    return true
   }
 
   // 统一监听对话框状态变化
@@ -126,10 +156,41 @@
 
     await formRef.value.validate((valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
+        $message({
+          type: 'success',
+          message: dialogType.value === 'add' ? '添加成功' : '更新成功'
+        })
         dialogVisible.value = false
         emit('submit')
       }
     })
   }
 </script>
+
+<style lang="scss" scoped>
+  :deep(.el-form-item) {
+    align-items: center;
+  }
+  :deep(.avatar-uploader) {
+    width: 100px;
+    height: 100px;
+    align-items: center;
+    background-color: var(--el-fill-color-lighter);
+    border: 1px dashed var(--el-border-color-darker);
+    border-radius: 6px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    vertical-align: top;
+    .el-upload {
+      width: 100%;
+      height: 100%;
+    }
+    .avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+</style>

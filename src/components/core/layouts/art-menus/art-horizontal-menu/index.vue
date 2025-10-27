@@ -72,7 +72,8 @@
         if (item.children && item.children.length > 0) {
           const filteredChildren = filterMenuItems(item.children)
           // 如果所有子菜单都被过滤掉了，则隐藏父菜单
-          return filteredChildren.length > 0
+          // return filteredChildren.length > 0
+          return true
         }
 
         // 叶子节点且未被隐藏，保留

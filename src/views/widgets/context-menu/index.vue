@@ -20,11 +20,10 @@
   import { ref, computed, nextTick } from 'vue'
   import ArtMenuRight from '@/components/core/others/art-menu-right/index.vue'
   import type { MenuItemType } from '@/components/core/others/art-menu-right/index.vue'
-  import { ElMessage } from 'element-plus'
 
   const menuRef = ref<InstanceType<typeof ArtMenuRight>>()
   const lastAction = ref('')
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   // 右键菜单选项
   const menuItems = computed((): MenuItemType[] => [
     {
@@ -98,7 +97,10 @@
 
   const handleSelect = (item: MenuItemType) => {
     lastAction.value = `${item.label} (${item.key})`
-    ElMessage.success(`执行操作: ${item.label}`)
+    $message({
+      type: 'success',
+      message: `执行操作: ${item.label}`
+    })
     console.log('选择了菜单项:', item)
   }
 

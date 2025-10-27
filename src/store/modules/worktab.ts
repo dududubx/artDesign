@@ -77,7 +77,7 @@ export const useWorktabStore = defineStore(
         console.warn('尝试打开无效的标签页')
         return
       }
-
+      console.log('打开标签页:', tab)
       // 从 keepAlive 排除列表中移除
       if (tab.name) {
         removeKeepAliveExclude(tab.name)
@@ -519,11 +519,11 @@ export const useWorktabStore = defineStore(
       updateTabTitle,
       resetTabTitle
     }
-  },
-  {
-    persist: {
-      key: 'worktab',
-      storage: localStorage
-    }
   }
+  // {
+  //   persist: {
+  //     key: 'worktab',
+  //     storage: localStorage
+  //   }
+  // }
 )

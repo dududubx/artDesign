@@ -49,22 +49,23 @@
     <RolePermissionDialog
       v-model="permissionDialog"
       :role-data="currentRoleData"
+      :defaultCheckedKeys="defaultCheckedKeys"
       @success="refreshData"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ElButton, ElMessage, ElMessageBox, ElTag } from 'element-plus'
+  import { ElButton, ElMessageBox, ElTag } from 'element-plus'
   import { Position, Edit, Delete } from '@element-plus/icons-vue'
   import { useTable } from '@/composables/useTable'
-  import { fetchGetRoleList, fetchDeleteRole } from '@/api/system-manage'
+  import { fetchGetRoleList, fetchDeleteRole, fetchGetRoleSetMenus } from '@/api/system-manage'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
 
   defineOptions({ name: 'Role' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   type RoleListItem = Api.SystemManage.RoleListItem
 
   // 搜索表单
@@ -132,14 +133,13 @@
         {
           prop: 'status',
           label: '角色状态',
+          width: 90,
           formatter: (row) => {
             const statusConfig =
-              row.status == 1
-                ? { type: 'success', text: '启用' }
-                : { type: 'warning', text: '禁用' }
+              row.status == 1 ? { type: 'success', text: '启用' } : { type: 'danger', text: '禁用' }
             return h(
               ElTag,
-              { type: statusConfig.type as 'success' | 'warning' },
+              { type: statusConfig.type as 'success' | 'danger' },
               () => statusConfig.text
             )
           }
@@ -147,7 +147,9 @@
         {
           prop: 'create_time',
           label: '创建日期',
-          sortable: true
+          sortable: true,
+          showOverflowTooltip: true,
+          minWidth: 120
         },
         {
           prop: 'operation',
@@ -241,9 +243,14 @@
     }
   }
 
-  const showPermissionDialog = (row?: RoleListItem) => {
-    permissionDialog.value = true
-    currentRoleData.value = row
+  const defaultCheckedKeys = ref<string[]>([])
+  const showPermissionDialog = async (row?: RoleListItem) => {
+    const res = await fetchGetRoleSetMenus({ role_id: row!.id || '' })
+    if (res.code === 200) {
+      defaultCheckedKeys.value = res.data
+      permissionDialog.value = true
+      currentRoleData.value = row
+    }
   }
 
   const deleteRole = (row: RoleListItem) => {
@@ -257,12 +264,13 @@
         await fetchDeleteRole({
           id: row!.id || ''
         })
-        ElMessage.success('删除成功')
+        $message({
+          type: 'success',
+          message: `删除成功`
+        })
         refreshData()
       })
-      .catch(() => {
-        ElMessage.info('已取消删除')
-      })
+      .catch(() => {})
   }
 </script>
 

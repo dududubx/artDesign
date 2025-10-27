@@ -70,10 +70,7 @@
       apiFn: fetchGetUserList,
       apiParams: {
         current: 1,
-        size: 20,
-        userName: '',
-        userPhone: '',
-        userEmail: ''
+        size: 20
       },
       columnsFactory: () => [
         {
@@ -88,7 +85,7 @@
           prop: 'userGender',
           label: '性别',
           sortable: true,
-          formatter: (row) => row.userGender || '未知'
+          formatter: (row) => row.gender || '未知'
         },
         {
           prop: 'userPhone',

@@ -1,5 +1,5 @@
 import { useSettingStore } from '@/store/modules/setting'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 
 /**
  * 颜色转换结果接口
@@ -83,7 +83,10 @@ export function hexToRgba(hex: string, opacity: number): RgbaResult {
  */
 export function hexToRgb(hexColor: string): number[] {
   if (!isValidHexColor(hexColor)) {
-    ElMessage.warning('输入错误的hex颜色值')
+    window.$message({
+      type: 'warning',
+      message: '输入错误的hex颜色值'
+    })
     throw new Error('Invalid hex color format')
   }
 
@@ -115,7 +118,10 @@ export function hexToRgb(hexColor: string): number[] {
  */
 export function rgbToHex(r: number, g: number, b: number): string {
   if (!isValidRgbValue(r, g, b)) {
-    ElMessage.warning('输入错误的RGB颜色值')
+    window.$message({
+      type: 'warning',
+      message: '输入错误的RGB颜色值'
+    })
     throw new Error('Invalid RGB color values')
   }
 
@@ -157,7 +163,10 @@ export function colourBlend(color1: string, color2: string, ratio: number): stri
  */
 export function getLightColor(color: string, level: number, isDark: boolean = false): string {
   if (!isValidHexColor(color)) {
-    ElMessage.warning('输入错误的hex颜色值')
+    window.$message({
+      type: 'warning',
+      message: '输入错误的hex颜色值'
+    })
     throw new Error('Invalid hex color format')
   }
 
@@ -179,7 +188,10 @@ export function getLightColor(color: string, level: number, isDark: boolean = fa
  */
 export function getDarkColor(color: string, level: number): string {
   if (!isValidHexColor(color)) {
-    ElMessage.warning('输入错误的hex颜色值')
+    window.$message({
+      type: 'warning',
+      message: '输入错误的hex颜色值'
+    })
     throw new Error('Invalid hex color format')
   }
 

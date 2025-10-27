@@ -1,6 +1,6 @@
 import { App, Directive } from 'vue'
 import hljs from 'highlight.js'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 
 /**
  * 高亮代码
@@ -33,7 +33,10 @@ function addCopyButton(block: HTMLElement) {
     // 过滤掉行号，只复制代码内容
     const codeContent = block.innerText.replace(/^\d+\s+/gm, '')
     navigator.clipboard.writeText(codeContent).then(() => {
-      ElMessage.success('复制成功')
+      window.$message({
+        type: 'success',
+        message: '复制成功'
+      })
     })
   }
 

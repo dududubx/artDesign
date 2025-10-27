@@ -93,13 +93,12 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue'
-  import { ElMessage } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
   import { useI18n } from 'vue-i18n'
   import { fetchLogin, fetchGetUserInfo } from '@/api/auth'
 
   defineOptions({ name: 'PermissionSwitchRole' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const { t } = useI18n()
   const userStore = useUserStore()
 
@@ -189,7 +188,10 @@
       }, 100)
     } catch (error) {
       if (error !== 'cancel') {
-        ElMessage.error('切换用户身份失败，请稍后重试')
+        $message({
+          type: 'error',
+          message: '切换用户身份失败，请稍后重试'
+        })
         console.error('[SwitchRole] Error:', error)
       }
     } finally {

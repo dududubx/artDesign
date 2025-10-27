@@ -355,16 +355,16 @@
 
 <script setup lang="ts">
   import { computed, ref } from 'vue'
-  import { ElMessage } from 'element-plus'
   import { ArrowDown, Lock } from '@element-plus/icons-vue'
   import { useAuth } from '@/composables/useAuth'
   import { useUserStore } from '@/store/modules/user'
   import { useCommon } from '@/composables/useCommon'
   import { useRoute } from 'vue-router'
   import type { AppRouteRecord } from '@/types/router'
+  import type { ComponentPublicInstance } from 'vue'
 
   defineOptions({ name: 'PermissionButtonAuth' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const { hasAuth } = useAuth()
   const { isFrontendMode } = useCommon()
   const userStore = useUserStore()
@@ -451,9 +451,15 @@
   // 处理发布操作
   const handlePublish = () => {
     if (hasAuth('publish')) {
-      ElMessage.success('发布成功！')
+      $message({
+        type: 'success',
+        message: `发布成功！`
+      })
     } else {
-      ElMessage.warning('您没有发布权限')
+      $message({
+        type: 'warning',
+        message: `您没有发布权限`
+      })
     }
   }
 
@@ -468,9 +474,15 @@
     const permission = command.replace('batch', '').toLowerCase()
 
     if (hasAuth(permission)) {
-      ElMessage.success(`${actions[command]}操作执行成功！`)
+      $message({
+        type: 'success',
+        message: `${actions[command]}操作执行成功！`
+      })
     } else {
-      ElMessage.warning(`您没有${actions[command]}权限`)
+      $message({
+        type: 'warning',
+        message: `您没有${actions[command]}权限`
+      })
     }
   }
 </script>

@@ -29,17 +29,15 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     component: () => import('@views/auth/register/index.vue'),
     meta: { title: 'menus.register.title', isHideTab: true, noLogin: true, setTheme: true }
   },
-  // {
-  //   path: '/system/user-center',
-  //   name: 'UserCenter',
-  //   component: () => import('@views/system/user-center/index.vue'),
-  //   meta: {
-  //     title: 'menus.system.userCenter',
-  //     isHide: true,
-  //     keepAlive: true,
-  //     isHideTab: true
-  //   }
-  // },
+  {
+    path: '/role',
+    name: 'role',
+    component: () => import('@views/system/role/index.vue'),
+    meta: {
+      title: '文件管理',
+      keepAlive: true
+    }
+  },
   {
     path: RoutesAlias.ForgetPassword,
     name: 'ForgetPassword',

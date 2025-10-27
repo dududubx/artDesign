@@ -22,9 +22,10 @@
   import { onBeforeUnmount, onMounted, shallowRef, computed } from 'vue'
   import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
   import { useUserStore } from '@/store/modules/user'
-  import { ElMessage } from 'element-plus'
+  // import { ElMessage } from 'element-plus'
   import EmojiText from '@/utils/ui/emojo'
   import { IDomEditor, IToolbarConfig, IEditorConfig } from '@wangeditor/editor'
+  import { ComponentPublicInstance } from 'vue'
 
   defineOptions({ name: 'ArtWangEditor' })
 
@@ -50,6 +51,7 @@
     }
   }
 
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const props = withDefaults(defineProps<Props>(), {
     height: '500px',
     mode: 'default',
@@ -142,14 +144,20 @@
         allowedFileTypes: mergedUploadConfig.value.allowedFileTypes,
         server: uploadServer.value,
         headers: {
-          Authorization: userStore.accessToken
+          token: userStore.accessToken
         },
         onSuccess() {
-          ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
+          $message({
+            type: 'success',
+            message: `图片上传成功 ${EmojiText[200]}`
+          })
         },
         onError(file: File, err: any, res: any) {
           console.error('图片上传失败:', err, res)
-          ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+          $message({
+            type: 'error',
+            message: `图片上传失败 ${EmojiText[500]}`
+          })
         }
       }
     }

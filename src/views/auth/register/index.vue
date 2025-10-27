@@ -78,14 +78,14 @@
 <script setup lang="ts">
   import AppConfig from '@/config'
   import { RoutesAlias } from '@/router/routesAlias'
-  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { useI18n } from 'vue-i18n'
+  import { ComponentPublicInstance } from 'vue'
 
   defineOptions({ name: 'Register' })
 
   const { t } = useI18n()
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const router = useRouter()
   const formRef = ref<FormInstance>()
 
@@ -154,7 +154,10 @@
       // 模拟注册请求
       setTimeout(() => {
         loading.value = false
-        ElMessage.success('注册成功')
+        $message({
+          type: 'success',
+          message: `注册成功`
+        })
         toLogin()
       }, 1000)
     } catch (error) {

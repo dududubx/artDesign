@@ -75,24 +75,25 @@
 <script setup lang="ts">
   import { Plus } from '@element-plus/icons-vue'
   import { ApiStatus } from '@/utils/http/status'
-  import { ElMessage } from 'element-plus'
+  // import { ElMessage } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
   import EmojiText from '@/utils/ui/emojo'
   import { PageModeEnum } from '@/enums/formEnum'
   import axios from 'axios'
   import { useCommon } from '@/composables/useCommon'
+  import { ComponentPublicInstance } from 'vue'
 
   defineOptions({ name: 'ArticlePublish' })
 
   const route = useRoute()
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const userStore = useUserStore()
   let { accessToken } = userStore
 
   // 上传路径
   const uploadImageUrl = `${import.meta.env.VITE_API_URL}/api/common/upload`
   // 传递 token
-  const uploadHeaders = { Authorization: accessToken }
+  const uploadHeaders = { token: accessToken }
 
   let pageMode: PageModeEnum = PageModeEnum.Add // 页面类型 新增 ｜ 编辑
   const articleName = ref('') // 文章标题
@@ -188,22 +189,34 @@
   // 验证输入
   const validateArticle = () => {
     if (!articleName.value) {
-      ElMessage.error(`请输入文章标题`)
+      $message({
+        type: 'error',
+        message: `请输入文章标题`
+      })
       return false
     }
 
     if (!articleType.value) {
-      ElMessage.error(`请选择文章类型`)
+      $message({
+        type: 'error',
+        message: `请选择文章类型`
+      })
       return false
     }
 
     if (editorHtml.value === '<p><br></p>') {
-      ElMessage.error(`请输入文章内容`)
+      $message({
+        type: 'error',
+        message: `请输入文章内容`
+      })
       return false
     }
 
     if (!cover.value) {
-      ElMessage.error(`请上传图片`)
+      $message({
+        type: 'error',
+        message: `请上传图片`
+      })
       return false
     }
 
@@ -237,11 +250,17 @@
 
   const onSuccess = (response: any) => {
     cover.value = response.data.url
-    ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
+    $message({
+      type: 'success',
+      message: `图片上传成功 ${EmojiText[200]}`
+    })
   }
 
   const onError = () => {
-    ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+    $message({
+      type: 'error',
+      message: `图片上传失败 ${EmojiText[500]}`
+    })
   }
 
   // 添加上传前的校验
@@ -250,11 +269,17 @@
     const isLt2M = file.size / 1024 / 1024 < 2
 
     if (!isImage) {
-      ElMessage.error('只能上传图片文件!')
+      $message({
+        type: 'error',
+        message: '只能上传图片文件!'
+      })
       return false
     }
     if (!isLt2M) {
-      ElMessage.error('图片大小不能超过 2MB!')
+      $message({
+        type: 'error',
+        message: '图片大小不能超过 2MB!'
+      })
       return false
     }
     return true

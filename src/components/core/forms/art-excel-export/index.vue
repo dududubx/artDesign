@@ -22,13 +22,14 @@
   import * as XLSX from 'xlsx'
   import FileSaver from 'file-saver'
   import { ref, computed, nextTick } from 'vue'
-  import { ElMessage } from 'element-plus'
+  // import { ElMessage } from 'element-plus'
   import { Loading } from '@element-plus/icons-vue'
   import type { ButtonType } from 'element-plus'
   import { useThrottleFn } from '@vueuse/core'
+  import { ComponentPublicInstance } from 'vue'
 
   defineOptions({ name: 'ArtExcelExport' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   /** 导出数据类型 */
   type ExportValue = string | number | boolean | null | undefined | Date
 
@@ -336,9 +337,9 @@
 
       // 显示成功消息
       if (props.showSuccessMessage) {
-        ElMessage.success({
-          message: `成功导出 ${props.data.length} 条数据`,
-          duration: 3000
+        $message({
+          type: 'success',
+          message: `成功导出 ${props.data.length} 条数据`
         })
       }
     } catch (error) {
@@ -352,9 +353,9 @@
 
       // 显示错误消息
       if (props.showErrorMessage) {
-        ElMessage.error({
-          message: exportError.message,
-          duration: 5000
+        $message({
+          type: 'error',
+          message: exportError.message
         })
       }
 

@@ -21,6 +21,7 @@ export const handleMenuJump = (item: AppRouteRecord, jumpToFirst: boolean = fals
 
   // 如果不需要跳转到第一个子菜单，或者没有子菜单，直接跳转当前路径
   if (!jumpToFirst || !item.children?.length) {
+    console.log(item.path, router, '跳转到当前路径')
     return router.push(item.path)
   }
 

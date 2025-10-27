@@ -32,8 +32,7 @@
 
 <script lang="ts" setup>
   import { extractIconClasses, IconfontType } from '@/utils/constants'
-  import { ElMessage } from 'element-plus'
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const iconType = ref('unicode')
   const options = [
     {
@@ -65,8 +64,10 @@
     copyipt.select()
     document.execCommand('copy')
     document.body.removeChild(copyipt)
-
-    ElMessage.success(`已复制`)
+    $message({
+      type: 'success',
+      message: `已复制`
+    })
   }
 
   const getRandomColor = () => {

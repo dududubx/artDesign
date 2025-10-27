@@ -58,19 +58,3 @@ export interface AppRouteRecord extends Omit<RouteRecordRaw, 'meta' | 'children'
   /** 父级菜单ID */
   parentId?: number | string
 }
-
-export interface menuTypeRoute extends Omit<AppRouteRecord, 'children'> {
-  component_path: string
-  name: string
-  route_path: string
-  icon: string
-  id: number
-  link: string
-  parent_id: number
-  hidden: number
-  keepalive: number
-  perms: string
-  children?: menuTypeRoute[]
-  status: number
-  type: number
-}

@@ -5,7 +5,7 @@
       v-model="formFilters"
       :items="formItems"
       :showExpand="false"
-      @reset="handleReset"
+      @reset="resetSearchParams"
       @search="handleSearch"
     />
 
@@ -40,7 +40,12 @@
         <template #operation="{ row }">
           <div class="status-one">
             <div class="status-btn">
-              <el-button type="primary" :icon="Plus" text @click="handleAddAuth(row)"
+              <el-button
+                type="primary"
+                v-if="row.type != 3"
+                :icon="Plus"
+                text
+                @click="handleAddAuth(row)"
                 >新增</el-button
               >
               <el-button type="primary" :icon="Edit" text @click="handleEditMenu(row)"
@@ -61,6 +66,7 @@
         :type="dialogType"
         :editData="editData"
         :lockType="lockMenuType"
+        :isEdit="isEdit"
         @submit="handleSubmit"
       />
     </ElCard>
@@ -69,48 +75,29 @@
 
 <script setup lang="ts">
   import { useMenuStore } from '@/store/modules/menu'
-  import { ElMessage, ElMessageBox, ElTag } from 'element-plus'
+  import { ElMessageBox, ElTag } from 'element-plus'
   import { formatMenuTitle } from '@/router/utils/utils'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/composables/useTable'
-  import type { AppRouteRecord, menuTypeRoute } from '@/types/router'
+  import type { AppRouteRecord } from '@/types/router'
   import { useAuth } from '@/composables/useAuth'
   import MenuDialog from './modules/menu-dialog.vue'
   import { fetchGetSystemMenu } from '@/api/menu'
   import { Delete, Edit, Plus } from '@element-plus/icons-vue'
+  import type { MenuFormData } from '@/types/menu'
 
   defineOptions({ name: 'Menus' })
-
-  type menuFormData = AppRouteRecord & {
-    id: number
-    parentId: string
-    name: string
-  }
   enum menuType {
     '目录' = 1,
     '菜单' = 2,
     '按钮' = 3,
     '内嵌' = 4
   }
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   const { hasAuth } = useAuth()
   const { menuList } = storeToRefs(useMenuStore())
-  const menuTreeData = ref<menuFormData[]>([])
-  const expenMenuData = (items: AppRouteRecord[]): menuFormData[] => {
-    const returnData = items.map((item) => {
-      const newItem = {
-        ...item,
-        label: formatMenuTitle(item.meta?.title || ''),
-        value: item.id
-      }
-      if (item.children?.length) {
-        newItem.children = expenMenuData(item.children)
-      }
-      return newItem
-    }) as menuFormData[]
-    return returnData
-  }
+  const menuTreeData = ref<MenuFormData[]>([])
 
-  menuTreeData.value = expenMenuData(menuList.value)
   // 状态管
   // const loading = ref(false)
   const isExpanded = ref(false)
@@ -119,13 +106,12 @@
   // 弹窗相关
   const dialogVisible = ref(false)
   const dialogType = ref<string>('2')
-  const editData = ref<menuTypeRoute | any>(null)
+  const editData = ref<MenuFormData | any>(null)
   const lockMenuType = ref(false)
 
   // 搜索相关
   const initialSearchState = {
-    name: '',
-    route: ''
+    name: ''
   }
 
   const formFilters = reactive({ ...initialSearchState })
@@ -137,17 +123,11 @@
       key: 'name',
       type: 'input',
       props: { clearable: true }
-    },
-    {
-      label: '路由地址',
-      key: 'route',
-      type: 'input',
-      props: { clearable: true }
     }
   ])
 
   // 菜单类型工具函数
-  const getMenuTypeTag = (row: menuTypeRoute) => {
+  const getMenuTypeTag = (row: MenuFormData) => {
     if (row.type == 3) return 'danger'
     if (row.type == 1) return 'info'
     if (row.type == 2) return 'primary'
@@ -155,105 +135,123 @@
     return 'info'
   }
 
-  const getMenuTypeText = (row: menuTypeRoute) => {
-    if (menuType[row.type]) {
-      return menuType[row.type]
+  const getMenuTypeText = (row: MenuFormData) => {
+    if (menuType[row!.type as number]) {
+      return menuType[row!.type as number]
     }
     return '未知'
   }
-  const { columns, columnChecks, loading, refreshData, data } = useTable({
-    core: {
-      apiFn: fetchGetSystemMenu,
-      apiParams: {
-        current: 1,
-        size: 20,
-        userName: '',
-        userPhone: '',
-        userEmail: ''
-      },
-      columnsFactory: () => [
-        {
-          prop: 'name',
-          label: '菜单名称',
-          minWidth: 120
-        },
-        {
-          prop: 'type',
-          label: '菜单类型',
-          formatter: (row: menuTypeRoute) => {
-            return h(ElTag, { type: getMenuTypeTag(row) }, () => getMenuTypeText(row))
-          }
-        },
-        {
-          prop: 'path',
-          label: '路由',
-          formatter: (row: menuTypeRoute) => {
-            return row.route_path || row.link || ''
-          }
-        },
-        {
-          prop: 'meta.authList',
-          label: '权限标识',
-          formatter: (row: menuTypeRoute) => {
-            const authButtons = row.children?.filter((child) => child.type == 3) || []
-            if (!authButtons?.length) {
-              return ''
+  const { columns, columnChecks, loading, refreshData, data, resetSearchParams, searchParams } =
+    useTable({
+      core: {
+        apiFn: fetchGetSystemMenu,
+        apiParams: {},
+        excludeParams: ['current', 'size'],
+        columnsFactory: () => [
+          {
+            prop: 'name',
+            label: '菜单名称',
+            minWidth: 120
+          },
+          {
+            prop: 'type',
+            label: '菜单类型',
+            formatter: (row: MenuFormData) => {
+              return h(ElTag, { type: getMenuTypeTag(row) }, () => getMenuTypeText(row))
             }
-            return `${authButtons?.length} 个权限标识`
-          }
-        },
-        {
-          prop: 'date',
-          label: '编辑时间',
-          formatter: () => '2022-3-12 12:00:00'
-        },
-        {
-          prop: 'status',
-          label: '状态',
-          formatter: () => h(ElTag, { type: 'success' }, () => '启用')
-        },
-        {
-          prop: 'operation',
-          label: '操作',
-          width: 220,
-          align: 'center',
-          useSlot: true,
-          formatter: (row: menuTypeRoute) => {
-            const buttonStyle = { style: 'text-align: right' }
+          },
+          {
+            prop: 'route_path',
+            label: '路由',
+            formatter: (row: MenuFormData) => {
+              return row.route_path || row.link || ''
+            }
+          },
+          {
+            prop: 'perms',
+            label: '权限标识'
+          },
+          {
+            prop: 'create_time',
+            label: '创建时间',
+            showOverflowTooltip: true,
+            minWidth: 120
+          },
+          {
+            prop: 'status',
+            label: '状态',
+            formatter: (row: MenuFormData) =>
+              h(ElTag, { type: row.status == 1 ? 'success' : 'danger' }, () =>
+                row.status == 1 ? '启用' : '禁用'
+              )
+          },
+          {
+            prop: 'operation',
+            label: '操作',
+            width: 220,
+            align: 'center',
+            useSlot: true,
+            formatter: (row: MenuFormData) => {
+              const buttonStyle = { style: 'text-align: right' }
 
-            // if (row.meta?.isAuthButton) {
-            //   return h('div', buttonStyle, [
-            //     h(ArtButtonTable, {
-            //       type: 'edit',
-            //       onClick: () => handleEditAuth(row)
-            //     }),
-            //     h(ArtButtonTable, {
-            //       type: 'delete',
-            //       onClick: () => handleDeleteAuth()
-            //     })
-            //   ])
-            // }
+              // if (row.meta?.isAuthButton) {
+              //   return h('div', buttonStyle, [
+              //     h(ArtButtonTable, {
+              //       type: 'edit',
+              //       onClick: () => handleEditAuth(row)
+              //     }),
+              //     h(ArtButtonTable, {
+              //       type: 'delete',
+              //       onClick: () => handleDeleteAuth()
+              //     })
+              //   ])
+              // }
 
-            return h('div', buttonStyle, [
-              h(ArtButtonTable, {
-                type: 'add',
-                onClick: () => handleAddAuth(row),
-                title: '新增菜单'
-              }),
-              h(ArtButtonTable, {
-                type: 'edit',
-                onClick: () => handleEditMenu(row)
-              }),
-              h(ArtButtonTable, {
-                type: 'delete',
-                onClick: () => handleDeleteMenu()
-              })
-            ])
+              return h('div', buttonStyle, [
+                h(ArtButtonTable, {
+                  type: 'add',
+                  onClick: () => handleAddAuth(row),
+                  title: '新增菜单'
+                }),
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => handleEditMenu(row)
+                }),
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => handleDeleteMenu()
+                })
+              ])
+            }
           }
+        ]
+      }
+    })
+  const filterBtnType = (arr: MenuFormData[]): MenuFormData[] => {
+    return arr.map((item: MenuFormData) => {
+      if (item.children?.length) {
+        item.children = item.children.filter((child) => child.type != 3)
+        filterBtnType(item.children)
+      }
+      return item
+    }) as MenuFormData[]
+  }
+  watch(
+    () => data.value,
+    (newVal) => {
+      const clonedData = deepClone(newVal)
+      menuTreeData.value = [
+        {
+          name: '顶级菜单',
+          id: 0,
+          children: filterBtnType(clonedData),
+          route_path: '/'
         }
       ]
+      console.log(menuTreeData.value)
     }
-  })
+  )
+
   // 事件处理
   const handleReset = () => {
     Object.assign(formFilters, { ...initialSearchState })
@@ -262,7 +260,8 @@
   }
 
   const handleSearch = () => {
-    Object.assign(appliedFilters, { ...formFilters })
+    // 搜索参数赋值
+    Object.assign(searchParams, { ...formFilters })
     refreshData()
   }
 
@@ -320,11 +319,8 @@
 
     for (const item of items) {
       const searchName = appliedFilters.name?.toLowerCase().trim() || ''
-      const searchRoute = appliedFilters.route?.toLowerCase().trim() || ''
       const menuTitle = formatMenuTitle(item.meta?.title || '').toLowerCase()
-      const menuPath = (item.path || '').toLowerCase()
       const nameMatch = !searchName || menuTitle.includes(searchName)
-      const routeMatch = !searchRoute || menuPath.includes(searchRoute)
 
       if (item.children?.length) {
         const matchedChildren = searchMenu(item.children)
@@ -336,7 +332,7 @@
         }
       }
 
-      if (nameMatch && routeMatch) {
+      if (nameMatch) {
         results.push(deepClone(item))
       }
     }
@@ -349,26 +345,29 @@
     const searchedData = searchMenu(data.value)
     return convertAuthListToChildren(searchedData)
   })
-
+  const isEdit = ref(false)
   // 弹窗操作处理
   const handleAddMenu = () => {
     dialogType.value = '2'
     editData.value = null
+    isEdit.value = false
     lockMenuType.value = true
     dialogVisible.value = true
   }
 
-  const handleAddAuth = (row: menuTypeRoute) => {
+  const handleAddAuth = (row: MenuFormData) => {
     dialogType.value = '2'
+    isEdit.value = false
     editData.value = {
-      parent_id: row.parent_id
+      parent_id: row.id
     }
     lockMenuType.value = false
     dialogVisible.value = true
   }
 
-  const handleEditMenu = (row: AppRouteRecord) => {
+  const handleEditMenu = (row: MenuFormData) => {
     dialogType.value = '2'
+    isEdit.value = true
     editData.value = row
     lockMenuType.value = true
     dialogVisible.value = true
@@ -396,11 +395,17 @@
         cancelButtonText: '取消',
         type: 'warning'
       })
-      ElMessage.success('删除成功')
+      $message({
+        type: 'success',
+        message: `删除成功`
+      })
       refreshData()
     } catch (error) {
       if (error !== 'cancel') {
-        ElMessage.error('删除失败')
+        $message({
+          type: 'error',
+          message: `删除失败`
+        })
       }
     }
   }
@@ -412,11 +417,17 @@
         cancelButtonText: '取消',
         type: 'warning'
       })
-      ElMessage.success('删除成功')
+      $message({
+        type: 'success',
+        message: `删除成功`
+      })
       refreshData()
     } catch (error) {
       if (error !== 'cancel') {
-        ElMessage.error('删除失败')
+        $message({
+          type: 'error',
+          message: `删除失败`
+        })
       }
     }
   }

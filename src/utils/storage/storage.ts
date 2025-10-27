@@ -1,4 +1,4 @@
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 import { router } from '@/router'
 import { useUserStore } from '@/store/modules/user'
 import { StorageConfig } from '@/utils/storage/storage-config'
@@ -65,10 +65,9 @@ class StorageCompatibilityManager {
    * 显示存储错误消息
    */
   private showStorageError(): void {
-    ElMessage({
+    window.$message({
       type: 'error',
       offset: 40,
-      duration: 5000,
       message: '系统检测到本地数据异常，请重新登录系统恢复使用！'
     })
   }

@@ -30,6 +30,7 @@ const pendingLoading = ref(false)
  * 设置路由全局前置守卫
  */
 export function setupBeforeEachGuard(router: Router): void {
+  console.log('路由守卫注册成功')
   router.beforeEach(
     async (
       to: RouteLocationNormalized,
@@ -37,6 +38,7 @@ export function setupBeforeEachGuard(router: Router): void {
       next: NavigationGuardNext
     ) => {
       try {
+        console.log('路由守卫:', to, from)
         await handleRouteGuard(to, from, next, router)
       } catch (error) {
         console.error('路由守卫处理失败:', error)
@@ -105,7 +107,7 @@ async function handleRouteGuard(
   if (userStore.isLogin && isRouteRegistered.value && handleRootPathRedirect(to, next)) {
     return
   }
-
+  console.log('路由匹配:', to.matched)
   // 处理已知的匹配路由
   if (to.matched.length > 0) {
     setWorktab(to)
@@ -118,7 +120,6 @@ async function handleRouteGuard(
     await handleDynamicRoutes(to, from, next, router)
     return
   }
-
   // 未匹配到路由，跳转到 404
   next(RoutesAlias.Exception404)
 }
@@ -187,7 +188,7 @@ async function handleDynamicRoutes(
 /**
  * 获取菜单数据
  */
-async function getMenuData(router: Router): Promise<void> {
+export async function getMenuData(router: Router): Promise<void> {
   try {
     if (useCommon().isFrontendMode.value) {
       await processFrontendMenu(router)

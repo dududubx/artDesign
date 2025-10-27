@@ -3,10 +3,10 @@
     <div class="content">
       <div class="left-wrap">
         <div class="user-wrap box-style">
-          <img class="bg" src="@imgs/user/bg.webp" />
-          <img class="avatar" src="@imgs/user/avatar.webp" />
+          <!-- <img class="bg" src="@imgs/user/bg.webp" /> -->
+          <img class="avatar" :src="userInfo.avatar" />
           <h2 class="name">{{ userInfo.username }}</h2>
-          <p class="des">Art Design Pro 是一款漂亮的后台管理系统模版.</p>
+          <!-- <p class="des">Art Design Pro 是一款漂亮的后台管理系统模版.</p>
 
           <div class="outer-info">
             <div>
@@ -25,7 +25,7 @@
               <i class="iconfont-sys">&#xe811;</i>
               <span>字节跳动－某某平台部－UED</span>
             </div>
-          </div>
+          </div> -->
 
           <div class="lables">
             <h3>标签</h3>
@@ -47,7 +47,7 @@
         </el-carousel> -->
       </div>
       <div class="right-wrap">
-        <div class="info box-style">
+        <!-- <div class="info box-style">
           <h1 class="title">基本设置</h1>
 
           <ElForm
@@ -102,12 +102,26 @@
               </ElButton>
             </div>
           </ElForm>
-        </div>
+        </div> -->
 
-        <div class="info box-style" style="margin-top: 20px">
-          <h1 class="title">更改密码</h1>
-
-          <ElForm :model="pwdForm" class="form" label-width="86px" label-position="top">
+        <div class="info box-style">
+          <h1 class="title">安全设置</h1>
+          <div class="sub-title" v-if="!isEditPwd">
+            账户密码
+            <div class="tips">
+              定期修改密码有助于保护账户安全
+              <div class="edit-btn">
+                <ElButton text type="primary" @click="editPwd">修改</ElButton>
+              </div>
+            </div>
+          </div>
+          <ElForm
+            :model="pwdForm"
+            class="form"
+            label-width="86px"
+            label-position="top"
+            v-if="isEditPwd"
+          >
             <ElFormItem label="当前密码" prop="password">
               <ElInput
                 v-model="pwdForm.password"
@@ -137,7 +151,7 @@
 
             <div class="el-form-item-right">
               <ElButton type="primary" style="width: 90px" v-ripple @click="editPwd">
-                {{ isEditPwd ? '保存' : '编辑' }}
+                保存
               </ElButton>
             </div>
           </ElForm>
@@ -274,12 +288,12 @@
       margin-top: 10px;
 
       .left-wrap {
-        width: 450px;
+        width: 50%;
         margin-right: 25px;
 
         .user-wrap {
           position: relative;
-          height: 600px;
+          height: 400px;
           padding: 35px 40px;
           overflow: hidden;
           text-align: center;
@@ -389,7 +403,19 @@
             color: var(--art-text-gray-800);
             border-bottom: 1px solid var(--art-border-color);
           }
-
+          .sub-title {
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            padding: 30px 25px;
+            gap: 5px;
+            .tips {
+              font-size: 14px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+          }
           .form {
             box-sizing: border-box;
             padding: 30px 25px;

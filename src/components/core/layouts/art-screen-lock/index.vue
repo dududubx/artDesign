@@ -86,16 +86,17 @@
 
 <script setup lang="ts">
   import { Lock, Unlock } from '@element-plus/icons-vue'
-  import { ElMessage } from 'element-plus'
+  // import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { useI18n } from 'vue-i18n'
   import CryptoJS from 'crypto-js'
   import { useUserStore } from '@/store/modules/user'
   import { mittBus } from '@/utils/sys'
+  import { ComponentPublicInstance } from 'vue'
 
   // 国际化
   const { t } = useI18n()
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   // 环境变量
   const ENCRYPT_KEY = import.meta.env.VITE_LOCK_ENCRYPT_KEY
 
@@ -361,7 +362,11 @@
             console.error('更新store失败:', error)
           }
         } else {
-          ElMessage.error(t('lockScreen.pwdError'))
+          $message({
+            type: 'error',
+            message: t('lockScreen.pwdError')
+          })
+          // ElMessage.error(t('lockScreen.pwdError'))
         }
       } else {
         console.error('表单验证失败:', fields)

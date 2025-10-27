@@ -35,7 +35,8 @@
         <ElRow>
           <el-col :span="12">
             <ElFormItem label="店铺标志" prop="id">
-              <el-upload
+              <ArtUploadFile></ArtUploadFile>
+              <!-- <el-upload
                 v-model:file-list="form.logo"
                 action="#"
                 list-type="picture-card"
@@ -64,7 +65,7 @@
                     </span>
                   </div>
                 </template>
-              </el-upload>
+              </el-upload> -->
             </ElFormItem>
           </el-col>
         </ElRow>
@@ -220,6 +221,7 @@
   const changeFile = (file: UploadFile) => {
     const formData = new FormData()
     formData.append('file', file.raw as File)
+    formData.append('pid', '15')
     fetchUploadFiles(formData).then((res) => {
       if (res.code === 200) {
         form.logo = [

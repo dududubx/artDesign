@@ -5,7 +5,7 @@ import { HttpError, handleError, showError, showSuccess } from './error'
 import { $t } from '@/locales'
 
 /** 请求配置常量 */
-const REQUEST_TIMEOUT = 15000
+const REQUEST_TIMEOUT = 180000
 const LOGOUT_DELAY = 500
 const MAX_RETRIES = 0
 const RETRY_DELAY = 1000
@@ -48,10 +48,17 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (request: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore()
-    if (accessToken) request.headers.set('Authorization', accessToken)
+    // 兼容不同 axios headers 表示法，安全设置 Authorization
+    request.headers = request.headers || {}
+    if (accessToken) {
+      // AxiosHeaders 也支持索引赋值，兼容性最好
+      request.headers['token'] = accessToken
+    }
 
-    if (request.data && !(request.data instanceof FormData) && !request.headers['Content-Type']) {
-      request.headers.set('Content-Type', 'application/json')
+    // 如果是 FormData 则不要设置 Content-Type，浏览器会自动处理 boundary
+    const isFormData = typeof FormData !== 'undefined' && request.data instanceof FormData
+    if (request.data && !isFormData && !request.headers['Content-Type']) {
+      request.headers['Content-Type'] = 'application/json'
       request.data = JSON.stringify(request.data)
     }
 
@@ -66,13 +73,20 @@ axiosInstance.interceptors.request.use(
 /** 响应拦截器 */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<Http.BaseResponse>) => {
-    const { code, msg } = JSON.parse(response.data as unknown as string) as Http.BaseResponse
+    // response.data 可能已被 transformResponse 解析为对象，也可能是字符串
+    const data =
+      response.data && typeof response.data === 'string'
+        ? tryParseJson(response.data)
+        : response.data
+
+    const { code, msg } = (data || {}) as Http.BaseResponse
     if (code === ApiStatus.success) return response
     if (code === ApiStatus.unauthorized || code == ApiStatus.otherPlaceLogin)
       handleUnauthorizedError(msg)
     throw createHttpError(msg || $t('httpMsg.requestFailed'), code)
   },
   (error) => {
+    console.log(error, 'error')
     if (
       error.response?.status === ApiStatus.unauthorized ||
       error.response?.status === ApiStatus.otherPlaceLogin
@@ -81,7 +95,13 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(handleError(error))
   }
 )
-
+function tryParseJson(str: string) {
+  try {
+    return JSON.parse(str)
+  } catch {
+    return str
+  }
+}
 /** 统一创建HttpError */
 function createHttpError(message: string, code: number) {
   return new HttpError(message, code)
@@ -164,10 +184,11 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
 
   try {
     const res = await axiosInstance.request<Http.BaseResponse<T>>(config)
-    const result = JSON.parse(res.data as unknown as string) as Http.BaseResponse<T>
-    // 显示成功消息
-    if (config.showSuccessMessage && result.msg) {
-      showSuccess(result.msg)
+    // res.data 可能已经是对象
+    const result = typeof res.data === 'string' ? tryParseJson(res.data) : res.data
+
+    if (config.showSuccessMessage && (result as any)?.msg) {
+      showSuccess((result as any).msg)
     }
     return result as T
   } catch (error) {

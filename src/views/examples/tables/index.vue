@@ -399,7 +399,7 @@
 
 <script setup lang="ts">
   import { ref, computed, watch, nextTick } from 'vue'
-  import { ElMessage, ElMessageBox } from 'element-plus'
+  import { ElMessageBox } from 'element-plus'
   import { Plus, Delete, Edit, Search, Refresh, QuestionFilled } from '@element-plus/icons-vue'
   import { useTable, CacheInvalidationStrategy } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
@@ -407,7 +407,7 @@
   import { getColumnKey } from '@/composables/useTableColumns'
 
   defineOptions({ name: 'AdvancedTableDemo' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   type UserListItem = Api.SystemManage.UserListItem
 
   // 选中的行
@@ -703,7 +703,7 @@
           prop: 'userGender',
           label: '性别',
           sortable: true,
-          formatter: (row) => row.userGender || '未知'
+          formatter: (row) => row.gender || '未知'
         },
         {
           prop: 'userPhone',
@@ -785,7 +785,10 @@
       onError: (error) => {
         console.error('❌ 数据加载失败:', error)
         addCacheLog(`❌ 请求失败: ${error.message}`)
-        ElMessage.error(error.message)
+        $message({
+          type: 'error',
+          message: error.message
+        })
       },
       onCacheHit: (data, response) => {
         console.log('🎯 缓存命中:', data.length, '条')
@@ -793,7 +796,10 @@
         addCacheLog(
           `🎯 缓存命中: ${data.length} 条数据 (current=${response.current}, size=${response.size})`
         )
-        ElMessage.info('数据来自缓存')
+        $message({
+          type: 'info',
+          message: '数据来自缓存'
+        })
       },
       resetFormCallback: () => {
         console.log('🔄 表单已重置')
@@ -816,7 +822,7 @@
 
   const handleRowClick = (row: UserListItem) => {
     console.log('行点击:', row)
-    logEvent('行点击', `点击了用户: ${row.userName}`)
+    logEvent('行点击', `点击了用户: ${row.username}`)
   }
 
   const handleHeaderClick = (column: any) => {
@@ -863,15 +869,24 @@
   const toggleEventDemo = () => {
     eventDemoEnabled.value = !eventDemoEnabled.value
     if (eventDemoEnabled.value) {
-      ElMessage.success('事件监听已开启，请与表格交互查看效果')
+      $message({
+        type: 'success',
+        message: '事件监听已开启，请与表格交互查看效果'
+      })
     } else {
-      ElMessage.info('事件监听已关闭')
+      $message({
+        type: 'info',
+        message: '事件监听已关闭'
+      })
     }
   }
 
   const clearEventLogs = () => {
     eventLogs.value = []
-    ElMessage.info('事件日志已清空')
+    $message({
+      type: 'info',
+      message: '事件日志已清空'
+    })
   }
 
   const handleScrollToTop = () => {
@@ -885,10 +900,16 @@
   const handleToggleSelection = () => {
     if (selectedRows.value.length === 0) {
       tableRef.value?.elTableRef.toggleAllSelection()
-      ElMessage.info('已全选')
+      $message({
+        type: 'info',
+        message: '已全选'
+      })
     } else {
       tableRef.value?.elTableRef.clearSelection()
-      ElMessage.info('已取消全选')
+      $message({
+        type: 'info',
+        message: '已取消全选'
+      })
     }
   }
 
@@ -903,7 +924,10 @@
     }
 
     console.log('表格信息:', info)
-    ElMessage.info(`表格信息已输出到控制台，当前 ${info.数据条数} 条数据`)
+    $message({
+      type: 'info',
+      message: `表格信息已输出到控制台，当前 ${info.数据条数} 条数据`
+    })
   }
 
   const handleSearch = async () => {
@@ -940,12 +964,18 @@
 
   // CRUD 操作
   const handleAdd = () => {
-    ElMessage.success('新增用户成功')
+    $message({
+      type: 'success',
+      message: `新增用户成功`
+    })
     refreshCreate()
   }
 
   const handleEdit = (row: UserListItem) => {
-    ElMessage.success(`编辑用户 ${row.userName} 成功`)
+    $message({
+      type: 'success',
+      message: `编辑用户 ${row.username} 成功`
+    })
     setTimeout(() => {
       refreshUpdate()
     }, 1000)
@@ -953,23 +983,31 @@
 
   const handleDelete = async (row: UserListItem) => {
     try {
-      await ElMessageBox.confirm(`确定要删除用户 ${row.userName} 吗？`, '警告', {
+      await ElMessageBox.confirm(`确定要删除用户 ${row.username} 吗？`, '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
-
-      ElMessage.success('删除成功')
+      $message({
+        type: 'success',
+        message: '删除成功'
+      })
       setTimeout(() => {
         refreshRemove()
       }, 1000)
     } catch {
-      ElMessage.info('已取消删除')
+      $message({
+        type: 'info',
+        message: '已取消删除'
+      })
     }
   }
 
   const handleView = (row: UserListItem) => {
-    ElMessage.info(`查看用户 ${row.userName}`)
+    $message({
+      type: 'info',
+      message: `查看用户 ${row.username}`
+    })
   }
 
   const handleBatchDelete = async () => {
@@ -983,29 +1021,43 @@
           type: 'warning'
         }
       )
-
-      ElMessage.success(`批量删除 ${selectedRows.value.length} 个用户成功`)
+      $message({
+        type: 'success',
+        message: `批量删除 ${selectedRows.value.length} 个用户成功`
+      })
       selectedRows.value = []
       setTimeout(() => {
         refreshRemove()
       }, 1000)
     } catch {
-      ElMessage.info('已取消删除')
+      $message({
+        type: 'info',
+        message: '已取消删除'
+      })
     }
   }
 
   // 导入导出
   const handleExportSuccess = (filename: string, count: number) => {
-    ElMessage.success(`导出 ${count} 条数据成功`)
+    $message({
+      type: 'success',
+      message: `导出 ${count} 条数据成功`
+    })
   }
 
   const handleImportSuccess = (data: any[]) => {
-    ElMessage.success(`导入 ${data.length} 条数据成功`)
+    $message({
+      type: 'success',
+      message: `导入 ${data.length} 条数据成功`
+    })
     refreshCreate()
   }
 
   const handleImportError = (error: Error) => {
-    ElMessage.error(`导入失败：${error.message}`)
+    $message({
+      type: 'error',
+      message: `导入失败：${error.message}`
+    })
   }
 
   // 调试功能
@@ -1013,32 +1065,46 @@
     clearCache(CacheInvalidationStrategy.CLEAR_ALL, '手动清空')
     cacheKeys.value = [] // 清空缓存键列表
     addCacheLog('🗑️ 手动清空所有缓存')
-    ElMessage.success('缓存已清空')
+    $message({
+      type: 'success',
+      message: `缓存已清空`
+    })
   }
 
   const handleCleanExpiredCache = () => {
     const count = clearExpiredCache()
     addCacheLog(`🧹 清理了 ${count} 条过期缓存`)
-    ElMessage.info(`清理了 ${count} 条过期缓存`)
+    $message({
+      type: 'info',
+      message: `清理了 ${count} 条过期缓存`
+    })
   }
 
   const handleCancelRequest = () => {
     cancelRequest()
     addCacheLog('❌ 取消当前请求')
-    ElMessage.info('请求已取消')
+    $message({
+      type: 'info',
+      message: `请求已取消`
+    })
   }
 
   const handleClearData = () => {
     clearData()
     addCacheLog('🗑️ 清空所有数据')
-    ElMessage.info('数据已清空')
+    $message({
+      type: 'info',
+      message: `数据已清空`
+    })
   }
 
   const handleTestCache = () => {
     // 模拟快速切换页面来测试缓存
     const testPages = [1, 2, 3, 2, 1] // 测试页面序列
-
-    ElMessage.info('开始缓存测试...')
+    $message({
+      type: 'info',
+      message: `开始缓存测试...`
+    })
     addCacheLog('🧪 开始缓存测试')
 
     let index = 0
@@ -1046,7 +1112,10 @@
       if (index >= testPages.length) {
         clearInterval(testInterval)
         addCacheLog('✅ 缓存测试完成')
-        ElMessage.success('缓存测试完成！观察缓存统计的变化')
+        $message({
+          type: 'success',
+          message: `缓存测试完成！观察缓存统计的变化`
+        })
         return
       }
 
@@ -1137,7 +1206,10 @@
           width: 150,
           formatter: () => h('span', { style: 'color: #999' }, '暂无备注')
         })
-        ElMessage.success('已新增"备注"列')
+        $message({
+          type: 'success',
+          message: `已新增"备注"列`
+        })
         break
       }
 
@@ -1166,7 +1238,10 @@
 
           if (genderIndex !== -1 && phoneIndex !== -1) {
             reorderColumns?.(genderIndex, phoneIndex)
-            ElMessage.success('已交换性别和手机号列位置')
+            $message({
+              type: 'success',
+              message: `已交换性别和手机号列位置`
+            })
           }
         }
         break
@@ -1178,7 +1253,10 @@
           label: '联系电话',
           width: 140
         })
-        ElMessage.success('手机号列标题已更新为"联系电话"')
+        $message({
+          type: 'success',
+          message: `手机号列标题已更新为"联系电话"`
+        })
         break
       }
 
@@ -1194,7 +1272,10 @@
       case 'resetColumns': {
         // 重置所有列配置
         resetColumns?.()
-        ElMessage.success('已重置所有列配置')
+        $message({
+          type: 'success',
+          message: `已重置所有列配置`
+        })
         break
       }
 

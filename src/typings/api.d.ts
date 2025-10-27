@@ -68,26 +68,34 @@ declare namespace Api {
     /** 用户列表 */
     type UserList = Api.Common.PaginatedResponse<UserListItem>
 
+    /** 接口响应信息 */
+    interface ResponseInfo<T> {
+      code: number
+      msg: string
+      data: T
+    }
+
     /** 用户列表项 */
     interface UserListItem {
       id: number
       avatar: string
       status: UserStatus
-      userName: string
-      userGender: string
-      nickName: string
-      userPhone: string
-      userEmail: string
-      userRoles: string[]
-      createBy: string
-      createTime: string
-      updateBy: string
-      updateTime: string
+      real_name: string
+      gender: string
+      nickname: string
+      phone: string
+      username?: string
+      userEmail?: string
+      userRoles?: string[]
+      createBy?: string
+      create_time?: string
+      updateBy?: string
+      updateTime?: string
     }
 
     /** 用户搜索参数 */
     type UserSearchParams = Partial<
-      Pick<UserListItem, 'id' | 'userName' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
+      Pick<UserListItem, 'id' | 'username' | 'gender' | 'phone' | 'status'> &
         Api.Common.CommonSearchParams
     >
 

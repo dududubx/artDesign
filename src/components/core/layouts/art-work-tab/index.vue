@@ -112,6 +112,7 @@
 
   // 计算属性
   const list = computed(() => store.opened)
+  console.log(list.value, 'computed')
   const activeTab = computed(() => currentRoute.value.path)
   const activeTabIndex = computed(() => list.value.findIndex((tab) => tab.path === activeTab.value))
 

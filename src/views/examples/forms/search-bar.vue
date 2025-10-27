@@ -54,7 +54,7 @@
   import ArtIconSelector from '@/components/core/base/art-icon-selector/index.vue'
   import { SearchFormItem } from '@/components/core/forms/art-search-bar/index.vue'
   import { IconTypeEnum } from '@/enums/appEnum'
-  import { ElMessage } from 'element-plus'
+  import { ComponentPublicInstance } from 'vue'
 
   interface Emits {
     (e: 'update:modelValue', value: Record<string, any>): void
@@ -62,7 +62,7 @@
     (e: 'reset'): void
   }
   const emit = defineEmits<Emits>()
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   // 表单数据双向绑定
   const searchBarBasicRef = ref()
   const searchBarAdvancedRef = ref()
@@ -147,7 +147,10 @@
   async function getLevelOptions() {
     levelOptions.value = await fetchLevelOptions()
     if (levelOptions.value.length) {
-      ElMessage.success('成功获取到数据')
+      $message({
+        type: 'success',
+        message: `成功获取到数据`
+      })
     }
   }
 

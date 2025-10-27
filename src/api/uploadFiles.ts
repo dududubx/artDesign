@@ -9,6 +9,9 @@ export function fetchUploadFiles(params: FormData) {
     }
   }>({
     url: '/api/file/upload',
-    params
+    params,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }

@@ -35,7 +35,7 @@ body {
   color: var(--art-text-gray-700);
   text-align: left;
   font-family:
-    'PingFang SC',  'Microsoft YaHei','Hiragino Sans GB', Inter, 'Helvetica Neue', Helvetica,
+    'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', Inter, 'Helvetica Neue', Helvetica,
     '微软雅黑', Arial, sans-serif;
 }
 
@@ -146,5 +146,15 @@ blockquote:after {
 
   ::-webkit-scrollbar-thumb {
     background-color: rgba(var(--art-gray-300-rgb), 0.8) !important;
+  }
+}
+
+.art-table-operation {
+  display: flex;
+  align-items: center;
+
+  .el-button--danger.is-text,
+  .el-button--primary.is-text {
+    padding: 0 !important;
   }
 }

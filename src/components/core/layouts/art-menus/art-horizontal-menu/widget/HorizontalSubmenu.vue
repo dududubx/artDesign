@@ -78,7 +78,7 @@
 
   // 计算当前项是否有可见的子菜单
   const hasChildren = computed(() => {
-    return filteredChildren.value.length > 0
+    return props.item.children && props.item.children.length > 0
   })
 
   const goPage = (item: AppRouteRecord) => {

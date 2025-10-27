@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 import { ApiStatus } from './status'
 import { $t } from '@/locales'
 
@@ -122,8 +122,12 @@ export function handleError(error: AxiosError<ErrorResponse>): never {
  * @param showMessage 是否显示错误消息
  */
 export function showError(error: HttpError, showMessage: boolean = true): void {
+  console.log('[HTTP Error]', error.message)
   if (showMessage) {
-    ElMessage.error(error.message)
+    window.$message({
+      type: 'error',
+      message: error.message
+    })
   }
   // 记录错误日志
   console.error('[HTTP Error]', error.toLogData())
@@ -136,7 +140,10 @@ export function showError(error: HttpError, showMessage: boolean = true): void {
  */
 export function showSuccess(message: string, showMessage: boolean = true): void {
   if (showMessage) {
-    ElMessage.success(message)
+    window.$message({
+      type: 'success',
+      message: message
+    })
   }
 }
 

@@ -100,6 +100,7 @@
    * @param item 菜单项数据
    */
   const goPage = (item: AppRouteRecord): void => {
+    console.log('goPage', item)
     closeMenu()
     handleMenuJump(item)
   }
@@ -130,7 +131,7 @@
         if (item.children && item.children.length > 0) {
           const filteredChildren = filterRoutes(item.children)
           // 如果所有子菜单都被过滤掉了，则隐藏父菜单
-          return filteredChildren.length > 0
+          return true
         }
 
         // 叶子节点且未被隐藏，保留

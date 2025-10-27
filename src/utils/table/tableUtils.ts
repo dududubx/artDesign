@@ -144,6 +144,7 @@ export const updatePaginationFromResponse = <T>(
   pagination: Api.Common.PaginationParams,
   response: ApiResponse<T>
 ): void => {
+  console.log('updatePaginationFromResponse', pagination, response)
   pagination.total = response.total ?? pagination.total ?? 0
 
   if (response.current !== undefined) {

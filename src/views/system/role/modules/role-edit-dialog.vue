@@ -33,7 +33,6 @@
 </template>
 
 <script setup lang="ts">
-  import { ElMessage } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchAddRole, fetchEditRole } from '@/api/system-manage'
 
@@ -49,6 +48,8 @@
     (e: 'update:modelValue', value: boolean): void
     (e: 'success'): void
   }
+
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
 
   const props = withDefaults(defineProps<Props>(), {
     modelValue: false,
@@ -78,7 +79,7 @@
     sort: [{ required: true, message: '请输入排序号', trigger: 'blur' }]
   })
 
-  const form = reactive<RoleListItem>({
+  let form = reactive<RoleListItem>({
     name: '',
     role_code: '',
     remark: '',
@@ -119,7 +120,7 @@
         sort: props.roleData.sort
       })
     } else {
-      Object.assign(form, {
+      form = reactive<RoleListItem>({
         name: '',
         role_code: '',
         remark: '',
@@ -140,13 +141,18 @@
     try {
       await formRef.value.validate()
       // TODO: 调用新增/编辑接口
+
       const message = props.dialogType === 'add' ? '新增成功' : '修改成功'
+
       if (props.dialogType === 'add') {
         await fetchAddRole(form)
       } else {
         await fetchEditRole(form)
       }
-      ElMessage.success(message)
+      $message({
+        type: 'success',
+        message
+      })
       emit('success')
       handleClose()
     } catch (error) {

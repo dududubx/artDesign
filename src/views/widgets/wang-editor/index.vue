@@ -212,8 +212,7 @@ const handleGetContent = () =&gt; {
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { ElMessage } from 'element-plus'
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   // 编辑器引用
   const fullEditorRef = ref()
   const simpleEditorRef = ref()
@@ -319,13 +318,19 @@ function createEditor() {
   // 完整编辑器操作
   const clearFullEditor = () => {
     fullEditorRef.value?.clear()
-    ElMessage.success('完整编辑器已清空')
+    $message({
+      type: 'success',
+      message: `完整编辑器已清空`
+    })
   }
 
   const getFullEditorContent = () => {
     const content = fullEditorRef.value?.getHtml()
     console.log('完整编辑器内容:', content)
-    ElMessage.success('完整编辑器内容已输出到控制台')
+    $message({
+      type: 'success',
+      message: `完整编辑器内容已输出到控制台`
+    })
   }
 
   const setFullEditorDemo = () => {
@@ -343,19 +348,28 @@ function createEditor() {
 </table>`
 
     fullEditorRef.value?.setHtml(demoContent)
-    ElMessage.success('已设置完整编辑器演示内容')
+    $message({
+      type: 'success',
+      message: `已设置完整编辑器演示内容`
+    })
   }
 
   // 简化编辑器操作
   const clearSimpleEditor = () => {
     simpleEditorRef.value?.clear()
-    ElMessage.success('简化编辑器已清空')
+    $message({
+      type: 'success',
+      message: `简化编辑器已清空`
+    })
   }
 
   const getSimpleEditorContent = () => {
     const content = simpleEditorRef.value?.getHtml()
     console.log('简化编辑器内容:', content)
-    ElMessage.success('简化编辑器内容已输出到控制台')
+    $message({
+      type: 'success',
+      message: `简化编辑器内容已输出到控制台`
+    })
   }
 
   const setSimpleEditorDemo = () => {
@@ -374,7 +388,10 @@ function createEditor() {
 <p>🔗 <a href="https://example.com" target="_blank">这是一个链接示例</a></p>`
 
     simpleEditorRef.value?.setHtml(demoContent)
-    ElMessage.success('已设置简化编辑器演示内容')
+    $message({
+      type: 'success',
+      message: `已设置简化编辑器演示内容`
+    })
   }
 </script>
 

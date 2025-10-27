@@ -41,16 +41,16 @@
 </template>
 
 <script setup lang="ts">
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { ACCOUNT_TABLE_DATA } from '@/mock/temp/formData'
-  import { ElMessageBox, ElMessage, ElTag, ElImage } from 'element-plus'
+  import { ElMessageBox, ElTag, ElImage, ElButton } from 'element-plus'
   import { useTable } from '@/composables/useTable'
   import { fetchGetUserList } from '@/api/system-manage'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
+  import { Edit, Delete } from '@element-plus/icons-vue'
 
   defineOptions({ name: 'User' })
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   type UserListItem = Api.SystemManage.UserListItem
 
   // 弹窗相关
@@ -89,7 +89,6 @@
       }
     )
   }
-
   const {
     columns,
     columnChecks,
@@ -119,7 +118,7 @@
         {
           prop: 'avatar',
           label: '用户名',
-          width: 280,
+          width: 180,
           formatter: (row) => {
             return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
               h(ElImage, {
@@ -130,19 +129,26 @@
                 previewTeleported: true
               }),
               h('div', {}, [
-                h('p', { class: 'user-name' }, row.userName),
-                h('p', { class: 'email' }, row.userPhone)
+                h('p', { class: 'user-name' }, row.nickname),
+                h('p', { class: 'email' }, row.username)
               ])
             ])
           }
         },
-        // {
-        //   prop: 'userGender',
-        //   label: '昵称/微信号',
-        //   // checked: false, // 隐藏列
-        //   formatter: (row) => row.userPhone
-        // },
-        { prop: 'userPhone', label: '手机号' },
+        {
+          prop: 'username',
+          label: '角色'
+        },
+        {
+          prop: 'real_name',
+          label: '姓名'
+        },
+        {
+          prop: 'gender',
+          label: '性别'
+        },
+        { prop: 'phone', label: '手机号' },
+        { prop: 'wechat', label: '微信号' },
         {
           prop: 'status',
           label: '状态',
@@ -152,26 +158,50 @@
           }
         },
         {
-          prop: 'createTime',
+          prop: 'create_time',
           label: '创建日期',
-          sortable: true
+          sortable: true,
+          showOverflowTooltip: true
         },
         {
           prop: 'operation',
+          align: 'center',
           label: '操作',
           width: 140,
-          fixed: 'right', // 固定列
+          fixed: 'right',
           formatter: (row) =>
-            h('div', [
-              h(ArtButtonTable, {
-                type: 'edit',
-                onClick: () => showDialog('edit', row)
-              }),
-              h(ArtButtonTable, {
-                type: 'delete',
-                onClick: () => deleteUser(row)
-              })
-            ])
+            h(
+              'div',
+              {
+                class: 'art-table-operation'
+              },
+              [
+                h(
+                  ElButton,
+                  {
+                    text: true,
+                    type: 'primary',
+                    icon: Edit,
+                    onClick: () => showDialog('edit', row)
+                  },
+                  {
+                    default: () => '编辑'
+                  }
+                ),
+                h(
+                  ElButton,
+                  {
+                    text: true,
+                    type: 'danger',
+                    icon: Delete,
+                    onClick: () => deleteUser(row)
+                  },
+                  {
+                    default: () => '删除'
+                  }
+                )
+              ]
+            )
         }
       ]
     },
@@ -195,7 +225,7 @@
       }
     }
   })
-
+  console.log('columns:', data.value)
   /**
    * 搜索处理
    * @param params 参数
@@ -232,7 +262,10 @@
       cancelButtonText: '取消',
       type: 'error'
     }).then(() => {
-      ElMessage.success('注销成功')
+      $message({
+        type: 'success',
+        message: `注销成功`
+      })
     })
   }
 
@@ -258,6 +291,7 @@
 </script>
 
 <style lang="scss" scoped>
+  // @use '@styles/basicTable.scss' as *;
   .user-page {
     :deep(.user) {
       .avatar {
@@ -277,4 +311,55 @@
       }
     }
   }
+  // :deep(.art-search-bar) {
+  //   // padding: 0;
+  //   border: none !important;
+  //   width: 100%;
+  //   box-sizing: border-box;
+  //   // .el-form-item--default {
+  //   //   margin-bottom: 0;
+  //   // }
+  //   .action-buttons-wrapper {
+  //     // margin-bottom: 0 !important;
+  //     justify-content: flex-start !important;
+  //   }
+
+  //   .el-form-item--default {
+  //     background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+  //     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
+  //     border: 1px solid var(--el-border-color);
+  //     --el-input-inner-height: calc(var(--el-input-height, 32px) - 2px);
+  //     align-items: center;
+
+  //     label,
+  //     .el-form-item__label {
+  //       // padding: 0 0;
+  //       padding: 0 0 0 12px;
+  //       height: 34px;
+  //       line-height: 34px;
+  //       text-align: left;
+  //       color: var(--el-text-color-placeholder);
+  //       justify-content: flex-start;
+  //       font-size: 12px;
+  //       width: fit-content !important;
+  //     }
+
+  //     .el-input__wrapper {
+  //       box-shadow: none;
+  //       padding-left: 3px;
+  //     }
+
+  //     .el-input__inner {
+  //       color: var(--el-text-color-primary);
+  //     }
+
+  //     .el-select__wrapper {
+  //       box-shadow: none;
+  //     }
+  //   }
+
+  //   .is-focused {
+  //     border-color: var(--el-color-primary);
+  //   }
+  // }
 </style>

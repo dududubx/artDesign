@@ -51,12 +51,11 @@
 <script setup lang="ts">
   import { useWorktabStore } from '@/store/modules/worktab'
   import { WorkTab } from '@/types'
-  import { ElMessage } from 'element-plus'
   const worktabStore = useWorktabStore()
   const currentTab = ref<WorkTab | null>(null)
   const newTabTitle = ref('')
   const routePath = '/examples/tabs'
-
+  const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   /**
    * 处理更新标签页标题
    * 验证输入内容后调用store方法更新标题
@@ -85,7 +84,10 @@
     if (tab) {
       currentTab.value = tab
     } else {
-      ElMessage.warning('未找到标签信息')
+      $message({
+        type: 'warning',
+        message: `未找到标签信息`
+      })
     }
   }
 
