@@ -6,54 +6,78 @@
     align-center
     @close="handleClose"
   >
-    <ElForm ref="formRef" :model="form" :rules="rules" label-width="120px">
-      <ElFormItem label="文件名称" prop="name">
-        <ElInput v-model="form.name" />
+    <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
+      <ElFormItem label="上传方式" prop="type">
+        <ElRadioGroup v-model="form.type">
+          <ElRadio :value="1" label="local">本地上传</ElRadio>
+          <ElRadio :value="2" label="code">扫码上传</ElRadio>
+        </ElRadioGroup>
       </ElFormItem>
-      <ElFormItem label="上传文件" prop="file">
-        <el-upload
-          v-model:file-list="fileList"
-          action="#"
-          :multiple="true"
-          :auto-upload="false"
-          accept=".jpg,.jpeg,.png,.gif"
-          :on-exceed="
-            () =>
-              $message({
-                type: 'error',
-                message: '最多只能上传5个文件'
-              })
-          "
-          :on-change="changeFile"
-        >
-          <el-button type="primary">上传文件</el-button>
-        </el-upload>
+      <ElFormItem label="上传分组" prop="group">
+        <ElRow :gutter="10" style="width: 100%">
+          <ElCol :span="8">
+            <ElTreeSelect
+              ref="treeRef"
+              v-model="form.group"
+              :data="cateList"
+              :render-after-expand="false"
+              node-key="id"
+              :props="{ label: 'name', value: 'id' }"
+            >
+            </ElTreeSelect>
+          </ElCol>
+          <ElCol :span="4">
+            <ElButton type="primary" @click="handleAddGroup">新增</ElButton>
+          </ElCol>
+        </ElRow>
       </ElFormItem>
-      <ElFormItem label="文件大小" prop="size">
-        <ElInput v-model="form.size" disabled />
+      <ElFormItem label="选择文件" prop="fileList" v-if="form.type == 1">
+        <ArtUploadFile ref="uploadRef" v-model:file-list="form.fileList" />
       </ElFormItem>
-      <ElFormItem label="文件后缀" prop="suffix">
-        <ElInput v-model="form.suffix" disabled />
+      <ElFormItem label="二维码" prop="code" v-else>
+        <div class="code-box">
+          <ElImage :src="codeImg"> </ElImage>
+          <div class="tips-text">扫描二维码，快速上传手机图片</div>
+          <div class="other-tips">建议使用手机浏览器</div>
+        </div>
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
         <ElButton @click="handleClose">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton
+          type="primary"
+          @click="uploadFileHandle"
+          :loading="loading"
+          v-if="
+            form.fileList.length > 0 &&
+            !isClick &&
+            form.fileList.some((item) => item.progress != 100)
+          "
+          >{{ loading ? '上传中' : '开始上传' }}</ElButton
+        >
+        <ElButton type="primary" @click="handleSubmit" v-else>提交</ElButton>
       </div>
     </template>
   </ElDialog>
+  <categoryDialog
+    v-model:visible="dialogVisible"
+    :cartegoryData="cateList"
+    :isEdit="false"
+    @submit="refleshCateList"
+  />
 </template>
 <script setup lang="ts">
-  import { FormInstance, FormRules, UploadFile, UploadFiles, ElLoading } from 'element-plus'
-  import { fetchUploadFiles } from '@/api/uploadFiles'
-  import { error } from 'console'
+  import { FormInstance, FormRules } from 'element-plus'
+  import type { FileCategory } from '@/types/fileManage'
+  import categoryDialog from './categoryDialog.vue'
+  import { FileList } from '@/types/fileManage'
+
   const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
   interface addFile {
-    name: string
-    file: UploadFiles
-    size: number
-    suffix: string
+    type: number
+    fileList: FileList[]
+    group: string
   }
 
   interface Props {
@@ -69,22 +93,22 @@
       suffix: string
       createTime: string
     }
+    cateList?: FileCategory[]
   }
 
   interface Emits {
     (e: 'update:modelValue', value: boolean): void
     (e: 'success'): void
+    (e: 'relfeshCateList'): void
   }
-  const fileList = ref<
-    {
-      name: string
-      url: string
-    }[]
-  >([])
+
+  const codeImg = new URL('@imgs/common/img_code.png', import.meta.url).href
+  const dialogVisible = ref(false)
   const props = withDefaults(defineProps<Props>(), {
     modelValue: false,
     dialogType: 'add',
-    editData: undefined
+    editData: undefined,
+    cateList: undefined
   })
 
   const emit = defineEmits<Emits>()
@@ -97,15 +121,15 @@
   const formRef = ref<FormInstance>()
 
   const rules = reactive<FormRules>({
-    name: [{ required: true, message: '请输入文件名称', trigger: 'blur' }],
-    file: [{ required: true, message: '请选择文件', trigger: 'blur' }]
+    type: [{ required: true, message: '请选择上传方式', trigger: 'change' }],
+    group: [{ required: true, message: '请选择上传分组', trigger: 'blur' }],
+    fileList: [{ required: true, message: '请选择文件', trigger: 'change' }]
   })
 
   let form = reactive<addFile>({
-    name: '',
-    file: null as unknown as UploadFiles,
-    size: 0,
-    suffix: ''
+    type: 1,
+    fileList: [] as unknown as FileList[],
+    group: ''
   })
 
   // 监听弹窗打开，初始化表单数据
@@ -130,6 +154,9 @@
     },
     { deep: true }
   )
+  const loading = ref(false)
+  const uploadRef = useTemplateRef('uploadRef')
+  const isClick = ref(false)
 
   const initForm = () => {
     if (props.dialogType === 'edit' && props.editData) {
@@ -143,29 +170,31 @@
           })
         ]
       })
-      fileList.value = [
-        {
-          name: props.editData.name,
-          url: props.editData.filePath
-        }
-      ]
     } else {
       form = reactive<addFile>({
-        name: '',
-        file: null as unknown as UploadFiles,
-        size: 0,
-        suffix: ''
+        type: 1,
+        fileList: [] as unknown as FileList[],
+        group: ''
       })
-      fileList.value = []
-      console.log('初始化表单数据')
+      formRef.value?.resetFields()
+      isClick.value = false
     }
+    uploadRef.value?.clearFileList()
   }
 
   const handleClose = () => {
     visible.value = false
     formRef.value?.resetFields()
   }
-
+  const uploadFileHandle = async () => {
+    if (form.fileList.length && !isClick.value) {
+      loading.value = true
+      await uploadRef.value?.submitFileList()
+      loading.value = false
+      isClick.value = true
+      return
+    }
+  }
   const handleSubmit = async () => {
     if (!formRef.value) return
 
@@ -173,26 +202,13 @@
       await formRef.value.validate()
       // TODO: 调用新增/编辑接口
       const message = props.dialogType === 'add' ? '新增成功' : '修改成功'
-      const loading = ElLoading.service({
-        lock: true,
-        fullscreen: true,
-        text: '上传中...',
-        background: 'rgba(0, 0, 0, 0.7)'
-      })
-      const allPromise = []
-      for (let i = 0; i < form.file.length; i++) {
-        const formData = new FormData()
-        formData.append('file', form.file[i].raw as File)
-        allPromise.push(fetchUploadFiles(formData))
-      }
-      await Promise.all(allPromise)
-      loading.close()
+
       $message({
         type: 'success',
         message: message
       })
       emit('success')
-      handleClose()
+      // handleClose()
     } catch (error) {
       $message({
         type: 'error',
@@ -201,17 +217,11 @@
       console.log('表单验证失败:', error)
     }
   }
-  const changeFile = (file: UploadFile, uploadFiles: UploadFiles) => {
-    form.file = uploadFiles
-    form.name = file.name
-    form.size = file.size as number
-    form.suffix = file.name.split('.').pop() as string
-    fileList.value = [
-      {
-        name: file.name,
-        url: URL.createObjectURL(file.raw as File)
-      }
-    ]
+  const handleAddGroup = () => {
+    dialogVisible.value = true
+  }
+  const refleshCateList = () => {
+    emit('relfeshCateList')
   }
 </script>
 
@@ -220,5 +230,23 @@
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+  }
+  .code-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    :deep(.el-image) {
+      height: 200px;
+      width: 200px;
+    }
+    .tips-text {
+      color: var(--el-text-color-primary);
+    }
+    .other-tips {
+      color: var(--el-text-color-placeholder);
+      font-size: 12px;
+      margin-top: -15px;
+    }
   }
 </style>

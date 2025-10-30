@@ -412,7 +412,7 @@
 
         .el-input__wrapper {
           box-shadow: none;
-          padding-left: 3px;
+          padding-left: 10px;
         }
 
         .el-input__inner {

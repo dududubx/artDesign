@@ -2,7 +2,7 @@ import request from '@/utils/http'
 import type { FileCategory } from '@/types/fileManage'
 
 export function getCategoryList(params: any) {
-  return request.post<FileCategory[]>({
+  return request.post<Http.BaseResponse<FileCategory[]>>({
     url: '/api/file_category/list',
     params
   })

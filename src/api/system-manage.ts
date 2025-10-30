@@ -92,7 +92,7 @@ export async function fetchGetMenuList(delay = 300): Promise<MenuResponse> {
       url: '/api/menus/routes',
       params: {}
     })
-    const setMenuList = (menus: MenuFormData[]): AppRouteRecord[] => {
+    const setMenuList = (menus: MenuFormData[], parentPath = ''): AppRouteRecord[] => {
       const menuList: AppRouteRecord[] = []
       menus.forEach((menu) => {
         if (menu.type == 3) {
@@ -103,14 +103,17 @@ export async function fetchGetMenuList(delay = 300): Promise<MenuResponse> {
         const fullPathWithIndex = `../views${menu.component_path}/index.vue`
         // 先尝试直接路径，再尝试添加/index的路径
         const module = modules[fullPath] || modules[fullPathWithIndex]
-        const newMenu: AppRouteRecord = {
-          id: menu.id,
-          name: menu.name || menu.route_path,
-          path: menu.route_path
+        const realPath =
+          parentPath +
+          (menu.route_path
             ? menu.route_path.startsWith('/')
               ? menu.route_path
               : `/${menu.route_path}`
-            : `/404/${menu.id}`,
+            : `/404/${menu.id}`)
+        const newMenu: AppRouteRecord = {
+          id: menu.id,
+          name: menu.name || menu.route_path,
+          path: realPath,
           parentId: menu.parent_id,
           component:
             menu.component_path == ''
@@ -118,7 +121,7 @@ export async function fetchGetMenuList(delay = 300): Promise<MenuResponse> {
               : !module
                 ? '/exception/404/index'
                 : menu.component_path,
-          children: menu.children ? setMenuList(menu.children) : [],
+          children: menu.children ? setMenuList(menu.children, realPath) : [],
           meta: {
             title: menu.meta!.title as string,
             icon: menu.meta!.icon as string,

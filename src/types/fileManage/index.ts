@@ -7,3 +7,12 @@ export interface FileCategory {
   create_time?: string
   children?: FileCategory[]
 }
+
+export interface FileList {
+  name: string
+  progress: number
+  currentStatus: string
+  size: number
+  raw: File
+  chunks: Blob[]
+}

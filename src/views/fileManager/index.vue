@@ -36,7 +36,9 @@
         v-model="dialogVisible"
         :editData="currentRow"
         :dialogType="dialogType"
+        :cateList="cateList"
         @success="handleSearch"
+        @relfeshCateList="getCategoryListData"
       />
     </ElCard>
   </div>
@@ -47,6 +49,8 @@
   import { ElTag, ElImage, ElButton } from 'element-plus'
   import { Delete, Edit } from '@element-plus/icons-vue'
   import addFile from './modules/addFile.vue'
+  import { getCategoryList } from '@/api/file-manage'
+  import type { FileCategory } from '@/types/fileManage'
 
   declare interface fileData {
     id: number
@@ -178,13 +182,7 @@
       label: '文件分组',
       key: 'group',
       type: 'select',
-      props: { clearable: true, options: testOptions.value }
-    },
-    {
-      label: '文件分组',
-      key: 'group',
-      type: 'select',
-      props: { clearable: true, options: testOptions.value }
+      props: { clearable: true, options: searchList.value, props: { label: 'name', value: 'id' } }
     }
   ])
 
@@ -203,12 +201,32 @@
     dialogType.value = 'add'
     dialogVisible.value = true
   }
+  const cateList = ref<FileCategory[]>([])
+  const searchList = ref<{ label: string; value: string }[]>([])
+  const getCategoryListData = async () => {
+    const res = await getCategoryList({})
+    cateList.value = res.data.filter((item) => item.children?.length)
+    const search = (data: FileCategory[]) => {
+      data.forEach((item) => {
+        if (!item.children) {
+          searchList.value.push({
+            label: item.name,
+            value: item.id as string
+          })
+        } else {
+          search(item.children)
+        }
+      })
+    }
+    search(res.data)
+  }
   onMounted(() => {
     testOptions.value = [
       { label: '分组1', value: 1 },
       { label: '分组2', value: 2 },
       { label: '分组3', value: 3 }
     ]
+    getCategoryListData()
   })
 </script>
 

@@ -1,7 +1,8 @@
 import request from '@/utils/http'
+import { CancelToken } from 'axios'
 
 // 上传文件
-export function fetchUploadFiles(params: FormData) {
+export function fetchUploadFiles(params: FormData, cancelToken?: CancelToken) {
   return request.post<{
     code: number
     data: {
@@ -10,8 +11,6 @@ export function fetchUploadFiles(params: FormData) {
   }>({
     url: '/api/file/upload',
     params,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    cancelToken
   })
 }

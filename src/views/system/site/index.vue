@@ -36,7 +36,7 @@
           <el-col :span="12">
             <ElFormItem label="店铺标志" prop="id">
               <ArtUploadFile></ArtUploadFile>
-              <!-- <el-upload
+              <el-upload
                 v-model:file-list="form.logo"
                 action="#"
                 list-type="picture-card"
@@ -65,7 +65,7 @@
                     </span>
                   </div>
                 </template>
-              </el-upload> -->
+              </el-upload>
             </ElFormItem>
           </el-col>
         </ElRow>

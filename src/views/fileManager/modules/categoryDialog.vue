@@ -144,10 +144,10 @@
           })
           handleCancel()
         } catch {
-          $message({
-            type: 'error',
-            message: `${props.isEdit ? '编辑' : '新增'}失败`
-          })
+          // $message({
+          //   type: 'error',
+          //   message: `${props.isEdit ? '编辑' : '新增'}失败`
+          // })
         }
       }
     })
