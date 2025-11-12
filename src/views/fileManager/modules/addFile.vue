@@ -21,6 +21,9 @@
               v-model="form.group"
               :data="cateList"
               :render-after-expand="false"
+              :check-on-click-node="true"
+              :expand-on-click-node="false"
+              @node-click="onTreeNodeClick"
               node-key="id"
               :props="{ label: 'name', value: 'id' }"
             >
@@ -49,12 +52,8 @@
           type="primary"
           @click="uploadFileHandle"
           :loading="loading"
-          v-if="
-            form.fileList.length > 0 &&
-            !isClick &&
-            form.fileList.some((item) => item.progress != 100)
-          "
-          >{{ loading ? '上传中' : '开始上传' }}</ElButton
+          v-if="form.fileList.length > 0 && form.fileList.some((item) => item.progress != 100)"
+          >{{ isClick ? '上传中' : '开始上传' }}</ElButton
         >
         <ElButton type="primary" @click="handleSubmit" v-else>提交</ElButton>
       </div>
@@ -128,10 +127,20 @@
 
   let form = reactive<addFile>({
     type: 1,
-    fileList: [] as unknown as FileList[],
+    fileList: [] as unknown as any[],
     group: ''
   })
-
+  const isClick = ref(false)
+  watch(
+    () => form.fileList.length,
+    (newVal, oldVal) => {
+      console.log('文件列表变化', newVal, oldVal)
+      isClick.value = false
+    },
+    {
+      deep: true
+    }
+  )
   // 监听弹窗打开，初始化表单数据
   watch(
     () => props.modelValue,
@@ -154,10 +163,13 @@
     },
     { deep: true }
   )
-  const loading = ref(false)
   const uploadRef = useTemplateRef('uploadRef')
-  const isClick = ref(false)
-
+  const loading = computed(() => {
+    const isLoading: boolean = (form.fileList.length &&
+      form.fileList.some((item) => item.progress != 100) &&
+      isClick.value) as boolean
+    return isLoading
+  })
   const initForm = () => {
     if (props.dialogType === 'edit' && props.editData) {
       Object.assign(form, {
@@ -171,11 +183,13 @@
         ]
       })
     } else {
-      form = reactive<addFile>({
-        type: 1,
-        fileList: [] as unknown as FileList[],
-        group: ''
-      })
+      // 原地重置，保持同一个 reactive 对象引用，避免打断 watcher 与模板绑定
+      form.type = 1
+      // 清空数组但保持引用，确保 v-model 和 watch 能正确响应
+      form.fileList.length = 0
+      form.group = ''
+      formRef.value?.resetFields()
+      isClick.value = false
       formRef.value?.resetFields()
       isClick.value = false
     }
@@ -187,11 +201,15 @@
     formRef.value?.resetFields()
   }
   const uploadFileHandle = async () => {
-    if (form.fileList.length && !isClick.value) {
-      loading.value = true
-      await uploadRef.value?.submitFileList()
-      loading.value = false
-      isClick.value = true
+    if (!form.group && form.type === 1) {
+      return $message({
+        type: 'warning',
+        message: '请先选择上传分组'
+      })
+    }
+    isClick.value = true
+    if (form.fileList.length) {
+      await uploadRef.value?.submitFileList(form.group)
       return
     }
   }
@@ -222,6 +240,39 @@
   }
   const refleshCateList = () => {
     emit('relfeshCateList')
+  }
+  const treeRef = templateRef<any>('treeRef')
+  const onTreeNodeClick = (data: any) => {
+    form.group = data.id
+    // 点击父节点后尝试关闭下拉（兼容不同组件实现）
+    nextTick(() => {
+      const inst = treeRef.value as any
+      if (!inst) {
+        // 最保险的兜底：触发一次 body 点击，很多弹出组件会因此关闭
+        document.body.click()
+        return
+      }
+      if (typeof inst.hide === 'function') {
+        inst.hide()
+        return
+      }
+      if (typeof inst.close === 'function') {
+        inst.close()
+        return
+      }
+      if (typeof inst.blur === 'function') {
+        inst.blur()
+        return
+      }
+      if ('visible' in inst) {
+        try {
+          inst.visible = false
+          return
+        } catch {}
+      }
+      // 最后兜底
+      document.body.click()
+    })
   }
 </script>
 

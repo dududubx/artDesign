@@ -10,6 +10,8 @@ const LOGOUT_DELAY = 500
 const MAX_RETRIES = 0
 const RETRY_DELAY = 1000
 const UNAUTHORIZED_DEBOUNCE_TIME = 3000
+// 新增：错误去重
+const errorShownMap = new Map<string, number>()
 
 /** 401防抖状态 */
 let isUnauthorizedErrorShown = false
@@ -80,7 +82,7 @@ axiosInstance.interceptors.response.use(
         : response.data
 
     const { code, msg } = (data || {}) as Http.BaseResponse
-    if (code === ApiStatus.success) return response
+    if (code === ApiStatus.success || code === ApiStatus.temporary) return response
     if (code === ApiStatus.unauthorized || code == ApiStatus.otherPlaceLogin)
       handleUnauthorizedError(msg)
     throw createHttpError(msg || $t('httpMsg.requestFailed'), code)
@@ -169,7 +171,33 @@ async function retryRequest<T>(
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+// 生成请求唯一 key（method + url + params + data）
+function getRequestKey(config?: ExtendedAxiosRequestConfig | AxiosRequestConfig | any) {
+  if (!config) return ''
+  const method = (config.method || 'GET').toUpperCase()
+  const url = config.url || ''
+  let params = ''
+  let data = ''
+  try {
+    params = config.params ? JSON.stringify(config.params) : ''
+  } catch {
+    params = String(config.params)
+  }
+  try {
+    data = config.data ? JSON.stringify(config.data) : ''
+  } catch {
+    data = String(config.data)
+  }
+  return `${method}::${url}::${params}::${data}`
+}
 
+// 清理过期的 key（可选，防止 Map 无限增长）
+function cleanupErrorShownMap() {
+  const now = Date.now()
+  for (const [k, expire] of errorShownMap) {
+    if (expire <= now) errorShownMap.delete(k)
+  }
+}
 /** 请求函数 */
 async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> {
   // POST | PUT 参数自动填充
@@ -194,7 +222,22 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
   } catch (error) {
     if (error instanceof HttpError && error.code !== ApiStatus.unauthorized) {
       const showMsg = config.showErrorMessage !== false
-      showError(error, showMsg)
+      if (showMsg) {
+        // 计算当前请求 key 并判断是否已在 TTL 内提示过
+        const key = getRequestKey(config)
+        const now = Date.now()
+        const existExpire = errorShownMap.get(key) || 0
+        if (existExpire <= now) {
+          // 尚未提示或已过期，展示并记录过期时间
+          showError(error, true)
+          errorShownMap.set(key, now + 3000)
+          // 可异步或定时清理过期条目
+          setTimeout(cleanupErrorShownMap, 3000 + 1000)
+        } else {
+          // 已提示过，跳过 showError
+          console.debug(`skip duplicate error message for key: ${key}`)
+        }
+      }
     }
     return Promise.reject(error)
   }

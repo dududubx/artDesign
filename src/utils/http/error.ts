@@ -89,7 +89,7 @@ const getErrorMessage = (status: number): string => {
 export function handleError(error: AxiosError<ErrorResponse>): never {
   // 处理取消的请求
   if (error.code === 'ERR_CANCELED') {
-    console.warn('Request cancelled:', error.message)
+    console.warn('Request cancelled:', error)
     throw new HttpError(error.message || $t('httpMsg.requestCancelled'), ApiStatus.error)
   }
 

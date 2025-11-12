@@ -2,6 +2,7 @@
   <div class="file-manager art-full-height">
     <!-- 搜索栏 -->
     <ArtSearchBar
+      ref="searchBarRef"
       v-model="formFilters"
       :items="formItems"
       :showExpand="false"
@@ -18,6 +19,7 @@
       >
         <template #left>
           <ElButton @click="handleAddFile" v-ripple> 新增 </ElButton>
+          <ElButton @click="chooseImge" v-ripple> 选择图片 </ElButton>
         </template>
       </ArtTableHeader>
 
@@ -40,6 +42,7 @@
         @success="handleSearch"
         @relfeshCateList="getCategoryListData"
       />
+      <ArtImgDialog v-model:visible="imgDialogVisible" />
     </ElCard>
   </div>
 </template>
@@ -66,6 +69,7 @@
   const dialogType = ref<'add' | 'edit'>('add')
   const currentRow = ref<fileData>()
   const loading = ref(false)
+  const imgDialogVisible = ref(false)
   const data = ref<fileData[]>([
     {
       id: 1,
@@ -169,7 +173,9 @@
       }
     }
   ])
-  const formFilters = reactive({})
+  const formFilters = reactive({
+    group: ''
+  })
   const testOptions = ref<Array<{ [key: string]: any }>>([])
   const formItems = computed(() => [
     {
@@ -181,11 +187,36 @@
     {
       label: '文件分组',
       key: 'group',
-      type: 'select',
-      props: { clearable: true, options: searchList.value, props: { label: 'name', value: 'id' } }
+      type: 'treeselect',
+      props: {
+        clearable: true,
+        data: cateList.value,
+        props: { label: 'name', value: 'id' },
+        renderAfterExpand: false,
+        checkOnClickNode: true,
+        expandOnClickNode: false,
+        nodeKey: 'id',
+        onNodeClick: onTreeNodeClick,
+        ref: 'treeRef',
+        key: 'groupTree',
+        class: 'art-file-tree-select'
+      }
     }
   ])
-
+  const onTreeNodeClick = (data: any) => {
+    formFilters.group = data.id
+    // 点击父节点后尝试关闭下拉（兼容不同组件实现）
+    nextTick(() => {
+      const dom = document.querySelector('.art-file-tree-select input') as HTMLInputElement
+      if (dom) {
+        dom.click()
+        dom.blur()
+        return
+      }
+      // 最后兜底
+      document.body.click()
+    })
+  }
   const buttonMoreClick = (type: string, row: any) => {
     if (type == 'edit') {
       dialogVisible.value = true
@@ -196,7 +227,11 @@
   }
   const handleReset = () => {}
 
-  const handleSearch = () => {}
+  const handleSearch = () => {
+    // 搜索参数赋值
+    // Object.assign(searchParams, { ...formFilters })
+    // refreshData()
+  }
   const handleAddFile = () => {
     dialogType.value = 'add'
     dialogVisible.value = true
@@ -205,7 +240,13 @@
   const searchList = ref<{ label: string; value: string }[]>([])
   const getCategoryListData = async () => {
     const res = await getCategoryList({})
-    cateList.value = res.data.filter((item) => item.children?.length)
+    cateList.value = [
+      {
+        name: '全部分组',
+        id: 0,
+        children: res.data
+      }
+    ]
     const search = (data: FileCategory[]) => {
       data.forEach((item) => {
         if (!item.children) {
@@ -219,6 +260,9 @@
       })
     }
     search(res.data)
+  }
+  const chooseImge = () => {
+    imgDialogVisible.value = true
   }
   onMounted(() => {
     testOptions.value = [

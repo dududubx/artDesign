@@ -131,6 +131,7 @@
   import { themeAnimation } from '@/utils/theme/animation'
   import { fetchLogin, fetchGetUserInfo } from '@/api/auth'
   import { ComponentPublicInstance } from 'vue'
+  import { getUploadConfig } from '@/api/uploadConfig'
 
   defineOptions({ name: 'Login' })
   const { $message } = getCurrentInstance()!.proxy as ComponentPublicInstance
@@ -246,7 +247,8 @@
       console.log(userInfo, 'userInfo')
       userStore.setUserInfo(userInfo.data)
       userStore.setLoginStatus(true)
-
+      // 获取上传配置
+      // await getUploadConfig({})
       // 登录成功处理
       showLoginSuccessNotice()
       router.push('/')

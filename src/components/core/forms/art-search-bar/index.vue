@@ -255,7 +255,6 @@
   const isExpanded = ref(props.defaultExpanded)
 
   const rootProps = ['label', 'labelWidth', 'key', 'type', 'hidden', 'span', 'slots']
-
   const getProps = (item: SearchFormItem) => {
     if (item.props) return item.props
     const props = { ...item }
